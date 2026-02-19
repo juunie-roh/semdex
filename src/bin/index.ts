@@ -9,7 +9,7 @@ program
   .description(pkg.description)
   .argument("<file>", "a target file name to parse")
   .argument("[others...]", "additional files")
-  .option("-l, --list", "print a list of nodes", false)
+  .option("-l, --list", "print a list of nodes", true)
   .action(async (file, others, options, command) => {
     // others?.forEach((file: string) => console.log(file));
     // TODO: Discriminate file extensions

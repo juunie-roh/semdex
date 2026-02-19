@@ -2,32 +2,12 @@ import Parser from "tree-sitter";
 
 import { query } from "@/core/parser";
 
-type FuncHit = {
-  name?: string;
-  generics?: string;
-  params?: string;
-  returnType?: string;
+const queryString = `
+(call_expression) @call
 
-  node: Parser.SyntaxNode;
-  body: Parser.SyntaxNode;
-
-  calls: Parser.SyntaxNode[];
-};
-
-export function convert(tree?: Parser.Tree) {
-  if (!tree) return;
-
-  const root = tree.rootNode;
-
-  const functions: FuncHit[] = [];
-  const calls: Parser.SyntaxNode[] = [];
-
-  query(
-    root,
-    `
-; 1. function declaration
-(
-  function_declaration
+;; function declaration
+;; function @name<@generics>(@params): @returnType { @body }
+(function_declaration
     name: (identifier) @name
     type_parameters: (type_parameters)? @generics
     parameters: (formal_parameters) @params
@@ -39,7 +19,10 @@ export function convert(tree?: Parser.Tree) {
     body: (statement_block) @body
 ) @function
 
-; 2. arrow function / function expression
+;; arrow function / function expression
+;; const @name = <@generics>(@params): @returnType => @body
+;; const @name = @params: @returnType => @body (single identifier param)
+;; const @name = function <@generics>(@params): @returnType { @body }
 (lexical_declaration
   (variable_declarator
     name: (identifier) @name
@@ -47,7 +30,10 @@ export function convert(tree?: Parser.Tree) {
       (
         arrow_function
           type_parameters: (type_parameters)? @generics
-          parameters: (formal_parameters) @params
+          parameters: [
+            (formal_parameters)
+            (identifier)
+          ] @params
           return_type: [
             (asserts_annotation)
             (type_annotation)
@@ -70,48 +56,116 @@ export function convert(tree?: Parser.Tree) {
   )
 ) @function
 
-(call_expression) @call
-`,
-  ).forEach((match) => {
-    let node: Parser.SyntaxNode | null = null;
+;; imports
+;; import { @name } from @source;
+;; import @name from @source;
+;; import { @name as @alias } from @source;
+;; import * as @name from @source;
+(import_statement
+  (import_clause
+    (identifier)? @name
+    (named_imports
+      (import_specifier
+        name: (identifier) @name
+        alias: (identifier)? @alias
+      )
+    )?
+    (namespace_import
+      (identifier) @name
+    )?
+  )
+  source: (string) @source
+) @import
+`;
+
+type FuncHit = {
+  name?: string;
+  generics?: string;
+  params?: string;
+  returnType?: string;
+
+  node: Parser.SyntaxNode;
+  body: Parser.SyntaxNode;
+
+  calls: Parser.SyntaxNode[];
+};
+
+type ImportHit = {
+  name?: string;
+  alias?: string;
+  source: string;
+  node: Parser.SyntaxNode;
+};
+
+export function convert(tree?: Parser.Tree) {
+  if (!tree) return;
+
+  const root = tree.rootNode;
+
+  const functions: FuncHit[] = [];
+  const imports: ImportHit[] = [];
+  const calls: Parser.SyntaxNode[] = [];
+
+  query(root, queryString).forEach((match) => {
+    let funcNode: Parser.SyntaxNode | null = null;
+    let importNode: Parser.SyntaxNode | null = null;
     let body: Parser.SyntaxNode | null = null;
 
-    // (같은 match에 function 캡처들이 함께 들어오는 케이스를 가정)
-    const info: Partial<FuncHit> = { calls: [] };
+    const funcInfo: Partial<FuncHit> = { calls: [] };
+    const importInfo: Partial<ImportHit> = {};
 
     for (const cap of match.captures) {
-      if (cap.name === "function") node = cap.node;
-      else if (cap.name === "body") body = cap.node;
-      else if (cap.name === "call") {
-        if (!isMemberCall(cap.node)) {
-          calls.push(cap.node);
-        }
-      } else {
-        // name/params/... 은 text로
-        (info as any)[cap.name] = cap.node.text;
+      switch (cap.name) {
+        case "function":
+          funcNode = cap.node;
+          break;
+        case "import":
+          importNode = cap.node;
+          break;
+        case "body":
+          body = cap.node;
+          break;
+        case "call":
+          if (!isMemberCall(cap.node)) calls.push(cap.node);
+          break;
+        case "source":
+          importInfo.source = cap.node.text;
+          break;
+        case "alias":
+          importInfo.alias = cap.node.text;
+          break;
+        case "name":
+          funcInfo.name = cap.node.text;
+          importInfo.name = cap.node.text;
+          break;
+        default:
+          (funcInfo as any)[cap.name] = cap.node.text;
       }
     }
 
-    if (node && body) {
-      functions.push({
-        ...info,
-        node,
-        body,
-        calls: [],
+    if (funcNode && body) {
+      functions.push({ ...funcInfo, node: funcNode, body, calls: [] });
+    }
+
+    if (importNode && importInfo.source) {
+      imports.push({
+        ...importInfo,
+        source: importInfo.source,
+        node: importNode,
       });
     }
   });
 
-  // 2) call -> function 매핑
-  // 포함 관계: body.startIndex <= call.startIndex && call.endIndex <= body.endIndex
+  // call -> function 매핑
   for (const call of calls) {
     const owner = findInnermostOwner(functions, call);
     if (owner) owner.calls.push(call);
   }
 
-  // 3) 출력 형태로 변환
-  const nodes = functions.map((fn) => ({
-    file: process.argv[2],
+  const file = process.argv[2];
+
+  const functionNodes = functions.map((fn) => ({
+    file,
     type: "function",
     range: {
       start: fn.node.startPosition,
@@ -130,7 +184,20 @@ export function convert(tree?: Parser.Tree) {
     })),
   }));
 
-  return nodes;
+  const importNodes = imports.map((imp) => ({
+    file,
+    type: "import",
+    range: {
+      start: imp.node.startPosition,
+      end: imp.node.endPosition,
+    },
+
+    name: imp.name,
+    alias: imp.alias,
+    source: imp.source,
+  }));
+
+  return { functions: functionNodes, imports: importNodes };
 }
 
 function contains(body: Parser.SyntaxNode, n: Parser.SyntaxNode) {
