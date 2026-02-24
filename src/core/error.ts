@@ -1,3 +1,3 @@
-class SpineError extends Error {}
+class CoreError extends Error {}
 
-export default SpineError;
+export default CoreError;

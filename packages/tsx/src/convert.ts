@@ -1,6 +1,5 @@
+import { query } from "@juun-roh/spine";
 import Parser from "tree-sitter";
-
-import { query } from "@/core/parser";
 
 const queryString = `
 (call_expression) @call

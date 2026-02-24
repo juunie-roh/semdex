@@ -1,0 +1,36 @@
+{
+  "name": "@juun-roh/spine-tsx",
+  "version": "0.0.0",
+  "description": "TSX plugin for spine",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "check-types": "tsc -p ./tsconfig.json --noEmit",
+    "dev": "tsup --watch"
+  },
+  "keywords": [],
+  "author": "Juun",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": "^22.13.0 || >=24"
+  },
+  "peerDependencies": {
+    "@juun-roh/spine": "^0.0.0",
+    "tree-sitter-javascript": ">=0.25.0",
+    "tree-sitter-typescript": ">=0.23.2"
+  },
+  "devDependencies": {
+    "@juun-roh/spine": "workspace:*",
+    "tree-sitter-typescript": "^0.23.2",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

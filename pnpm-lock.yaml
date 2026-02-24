@@ -41,6 +41,12 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.0.2(jiti@2.6.1))
+      '@juun-roh/spine-tsx':
+        specifier: workspace:*
+        version: link:packages/tsx
+      '@juun-roh/spine-typescript':
+        specifier: workspace:*
+        version: link:packages/typescript
       '@types/node':
         specifier: ^25.3.0
         version: 25.3.0
@@ -71,12 +77,6 @@ importers:
       jiti:
         specifier: ^2.6.1
         version: 2.6.1
-      tree-sitter-javascript:
-        specifier: ^0.25.0
-        version: 0.25.0(tree-sitter@0.25.0)
-      tree-sitter-typescript:
-        specifier: ^0.23.2
-        version: 0.23.2(tree-sitter@0.25.0)
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(typescript@5.9.3)
@@ -86,6 +86,25 @@ importers:
       vitest:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.3.0)(jiti@2.6.1)
+
+  packages/tsx:
+    dependencies:
+      tree-sitter-javascript:
+        specifier: '>=0.25.0'
+        version: 0.25.0(tree-sitter@0.25.0)
+    devDependencies:
+      '@juun-roh/spine':
+        specifier: workspace:*
+        version: link:../..
+      tree-sitter-typescript:
+        specifier: ^0.23.2
+        version: 0.23.2(tree-sitter@0.25.0)
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(jiti@2.6.1)(postcss@8.5.6)(typescript@5.9.3)
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
 
   packages/typescript:
     dependencies:

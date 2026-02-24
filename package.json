@@ -2,6 +2,7 @@
   "name": "@juun-roh/spine",
   "version": "0.0.0",
   "description": "An AST-based code indexer",
+  "keywords": [],
   "main": "dist/index.js",
   "module": "dist/index.js",
   "bin": "dist/bin/index.js",
@@ -9,6 +10,12 @@
     "dist"
   ],
   "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
   "scripts": {
     "build": "tsup",
     "check-types": "tsc -p ./tsconfig.json --noEmit",
@@ -16,9 +23,9 @@
     "lint": "eslint .",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky",
-    "ts": "pnpm --filter @juun-roh/spine-typescript"
+    "ts": "pnpm --filter @juun-roh/spine-typescript",
+    "tsx": "pnpm --filter @juun-roh/spine-tsx"
   },
-  "keywords": [],
   "author": "Juun",
   "license": "MIT",
   "packageManager": "pnpm@10.30.2",
@@ -39,6 +46,8 @@
     "@commitlint/cz-commitlint": "^20.4.1",
     "@commitlint/format": "^20.4.0",
     "@commitlint/types": "^20.4.0",
+    "@juun-roh/spine-tsx": "workspace:*",
+    "@juun-roh/spine-typescript": "workspace:*",
     "@eslint/js": "^10.0.1",
     "@types/node": "^25.3.0",
     "@typescript-eslint/eslint-plugin": "^8.56.1",
@@ -50,8 +59,6 @@
     "eslint-plugin-unused-imports": "^4.4.1",
     "husky": "^9.1.7",
     "jiti": "^2.6.1",
-    "tree-sitter-javascript": "^0.25.0",
-    "tree-sitter-typescript": "^0.23.2",
     "tsup": "^8.5.1",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"

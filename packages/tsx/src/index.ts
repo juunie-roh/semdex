@@ -1,16 +1,16 @@
 import { readFileSync } from "node:fs";
 
+import { parser } from "@juun-roh/spine";
 import TypeScript from "tree-sitter-typescript";
 
-import { parser } from "@/core/parser";
+const language = TypeScript.tsx;
 
 export async function parse(file: string) {
-  const target = file.endsWith(".ts") ? TypeScript.typescript : TypeScript.tsx;
-
-  parser.setLanguage(target as any);
+  parser.setLanguage(language as any);
 
   const source = readFileSync(file, "utf-8");
   return parser.parse(source);
 }
 
-export { convert } from "./convert";
+export { convert } from "./convert.js";
+export { language };
