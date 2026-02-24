@@ -1,3 +1,3 @@
-class CoreError extends Error {}
+import { SpineError } from "@/shared/error";
 
-export default CoreError;
+export class CoreError extends SpineError {}

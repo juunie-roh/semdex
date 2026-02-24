@@ -1,3 +1,3 @@
-class BinaryError extends Error {}
+import { SpineError } from "@/shared/error";
 
-export default BinaryError;
+export class BinaryError extends SpineError {}

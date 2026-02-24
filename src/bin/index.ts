@@ -16,7 +16,7 @@ program
   .option(
     "-p, --path <config-path>",
     "specify path of configuration",
-    "spine.json",
+    "spine.config.json",
   )
   .action(async (file, others, options, command) => {
     // others?.forEach((file: string) => console.log(file));
@@ -29,16 +29,11 @@ program
     // if (options.list) {
     //   console.log(tree);
     // }
-    // const filePath = path.resolve(join(cwd(), file));
-    // console.log(filePath);
     const config = loadConfig(options.path);
     console.log(config.plugin);
     const parser = Parser.get(config);
-    console.log(parser);
-    parser.plugin.forEach((p: any) => {
-      const m = require(p.name);
-      console.log(`${p.name}:`, m.language.name);
-    });
+    const tree = parser.parse(file);
+    console.log(tree);
   });
 
 program.parse(process.argv);

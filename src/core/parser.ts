@@ -1,37 +1,24 @@
-import TSParser, { Query } from "tree-sitter";
+import { readFileSync } from "node:fs";
+import path from "node:path";
+
+import type TSParser from "tree-sitter";
 
 import { Config } from "@/config";
 
-import CoreError from "./error";
-
-const g = globalThis as unknown as { __parser?: TSParser };
-
-/**
- * A singleton parser instance
- */
-export const parser = g.__parser ?? new TSParser();
-
-/**
- * Find nodes matching query
- * @param node a target node to look up
- * @param queryString S-expression query
- * @returns matching nodes for query
- */
-export function query(node: TSParser.SyntaxNode, queryString: string) {
-  const language = parser.getLanguage();
-  // TODO: Query interface definition - plugin design
-  const query = new Query(language, queryString);
-  return query.matches(node);
-}
+import { CoreError } from "./error";
+import { Plugin } from "./plugin";
 
 export class Parser {
   /** A singleton parser instance */
   private static _instance: Parser | undefined;
   /** A tree-sitter parser instances */
-  private _plugin: any;
+  private _plugins: Map<string, Plugin>;
 
   private constructor(config: Config) {
-    this._plugin = config.plugin;
+    this._plugins = new Map();
+    config.plugin.forEach((p) => {
+      this._plugins.set(p.ext, new Plugin(p.name));
+    });
   }
 
   static get(config?: Config): Parser {
@@ -47,9 +34,21 @@ export class Parser {
     return this._instance;
   }
 
-  parse() {}
-
   get plugin() {
-    return this._plugin;
+    return this._plugins;
+  }
+
+  parse(
+    file: string,
+    oldTree?: TSParser.Tree | null,
+    options?: TSParser.Options,
+  ) {
+    const ext = path.extname(file);
+    if (!this._plugins.has(ext))
+      throw new CoreError("Unsupported language: no available plugin found");
+
+    const source = readFileSync(file, "utf-8");
+
+    return this._plugins.get(ext)!.parse(source, oldTree, options);
   }
 }
