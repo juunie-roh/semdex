@@ -70,10 +70,11 @@ namespace Plugin {
     let m: Module;
     try {
       m = require(name);
-    } catch {
+    } catch (e) {
       throw new CoreError(
         "CORE_PLUGIN_LOAD_FAILED",
-        `Failed to load plugin "${name}": plugin is not installed.`,
+        `Failed to load plugin "${name}"`,
+        { cause: e },
       );
     }
 
