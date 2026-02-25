@@ -9,11 +9,11 @@ import {
   named_import_2,
   named_import_3,
   named_import_4 as aliased_named_import_4,
-  //@ts-expect-error mock import source
+  // @ts-expect-error: mock import source
 } from "import-source";
-//@ts-expect-error mock import source
+// @ts-expect-error: mock import source
 import default_module from "import-source";
-//@ts-expect-error mock import source
+// @ts-expect-error: mock import source
 import * as default_module_alias from "import-source";
 
 /* =========================
@@ -281,7 +281,7 @@ namespace Z {
    Modules / Imports / Exports
 ========================= */
 export { aliased_named_import_4 }; // re-exports
-//@ts-expect-error mock import source
+// @ts-expect-error: mock import source
 export * from "import-source";
 export { a, b, named_function_declaration_with_params as x };
 export default class_declaration;
