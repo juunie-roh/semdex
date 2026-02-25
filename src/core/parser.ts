@@ -8,7 +8,7 @@ import { Config } from "@/config";
 import { CoreError } from "./error";
 import { Plugin } from "./plugin";
 
-export class Parser {
+class Parser {
   /** A singleton parser instance */
   private static _instance: Parser | undefined;
   /** A tree-sitter parser instances */
@@ -52,3 +52,5 @@ export class Parser {
     return this._plugins.get(ext)!.parse(source, oldTree, options);
   }
 }
+
+export { Parser };

@@ -4,7 +4,7 @@ import TSParser from "tree-sitter";
  * @class
  * An initialized plugin instance
  */
-export class Plugin {
+class Plugin {
   private _parser: TSParser;
 
   private _language: TSParser.Language;
@@ -39,3 +39,5 @@ export class Plugin {
     return this._convert(tree, this._query);
   }
 }
+
+export { Plugin };

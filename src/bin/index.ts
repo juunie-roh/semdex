@@ -2,8 +2,8 @@
 
 import { program } from "commander";
 
-import { loadConfig } from "@/config/loader";
-import { Parser } from "@/core/parser";
+import { loadConfig } from "@/config";
+import { Parser } from "@/core";
 
 import pkg from "../../package.json";
 
@@ -30,7 +30,6 @@ program
     //   console.log(tree);
     // }
     const config = loadConfig(options.path);
-    console.log(config.plugin);
     const parser = Parser.get(config);
     const tree = parser.parse(file);
     console.log(tree);

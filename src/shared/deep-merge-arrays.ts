@@ -41,10 +41,7 @@ function deepMergeObjects<T, U>(first: T, second: U): T | U | (T & U) {
  * @param second User-specified values.
  * @returns Merged equivalent of second on top of first.
  */
-export function deepMergeArrays<T, U>(
-  first: T[],
-  second: U[],
-): (T | U | (T & U))[] {
+function deepMergeArrays<T, U>(first: T[], second: U[]): (T | U | (T & U))[] {
   if (!first || !second) {
     return (second || first || []) as (T | U | (T & U))[];
   }
@@ -60,3 +57,5 @@ export function deepMergeArrays<T, U>(
     ...second.slice(first.length),
   ];
 }
+
+export { deepMergeArrays };

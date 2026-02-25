@@ -1,14 +1,16 @@
 import { Language } from "tree-sitter";
 
-export interface Config {
+interface Config {
   plugin: {
     ext: string;
     name: string;
   }[];
 }
 
-export interface PluginConfig {
+interface PluginConfig {
   language: Language;
   convert: any;
   queryString: string;
 }
+
+export type { Config, PluginConfig };
