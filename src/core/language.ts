@@ -10,26 +10,25 @@ import { CoreError } from "./error";
 class Language {
   private _parser: TSParser;
 
-  private _language: TSParser.Language;
-
   private _query: TSParser.Query;
 
-  private _convert: any;
+  private _module: Language.Module;
 
   constructor(packageName: string) {
-    const { language, convert, queryString } = Language.load(packageName);
+    this._module = Language.load(packageName);
     this._parser = new TSParser();
-    this._language = language;
-    this._parser.setLanguage(language);
-    this._query = new TSParser.Query(language, queryString);
-    this._convert = convert;
+    this._parser.setLanguage(this._module.language);
+    this._query = new TSParser.Query(
+      this._module.language,
+      this._module.queryString,
+    );
   }
 
   /**
    * The {@link TSParser.Language | tree-sitter `Language`} instance used by this plugin.
    */
   get language() {
-    return this._language;
+    return this._module.language;
   }
   /**
    * The {@link TSParser.Query | tree-sitter `Query`} instance used by this plugin.
@@ -39,19 +38,31 @@ class Language {
   }
 
   /**
-   * Parses a source file and converts the syntax tree using the plugin's converter.
-   * @param file - Path to the source file to parse.
-   * @param oldTree - Previous tree for incremental parsing.
-   * @param options - Parsing options passed to tree-sitter.
+   * Parses a source file to the {@link TSParser.Tree | tree-sitter syntax tree}.
+   * @param filePath Path to the source file to parse.
+   * @param oldTree Previous tree for incremental parsing.
+   * @param options Parsing options passed to tree-sitter.
+   * @throws If the language plugin fails to parse the file.
    */
   parse(
-    file: string,
+    filePath: string,
     oldTree?: TSParser.Tree | null,
     options?: TSParser.Options,
-  ) {
-    const source = readFileSync(file, "utf-8");
-    const tree = this._parser.parse(source, oldTree, options);
-    return this._convert(tree, this._query, file);
+  ): TSParser.Tree {
+    try {
+      const source = readFileSync(filePath, "utf-8");
+      return this._parser.parse(source, oldTree, options);
+    } catch (e) {
+      throw new CoreError(
+        "CORE_PLUGIN_PARSE_FAILED",
+        `Failed to parse ${filePath}`,
+        { cause: e },
+      );
+    }
+  }
+
+  convert(filePath: string, node: TSParser.SyntaxNode) {
+    return this._module.convert(node, this._query, filePath);
   }
 }
 
@@ -61,6 +72,7 @@ namespace Language {
    */
   export interface Module {
     language: TSParser.Language;
+    capture: any;
     convert: any;
     queryString: string;
   }
@@ -74,6 +86,7 @@ namespace Language {
    */
   export function load(name: string): Module {
     let m: Module;
+
     try {
       m = require(name);
     } catch (e) {
@@ -99,6 +112,7 @@ namespace Language {
       typeof m === "object" &&
       m !== null &&
       "language" in m &&
+      "capture" in m &&
       "convert" in m &&
       "queryString" in m &&
       typeof (m as Language.Module).queryString === "string"
