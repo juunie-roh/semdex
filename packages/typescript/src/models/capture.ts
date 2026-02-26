@@ -2,15 +2,22 @@ import type TSParser from "tree-sitter";
 
 namespace Capture {
   export interface Base {
+    id: string;
     node: TSParser.SyntaxNode;
-    body: TSParser.SyntaxNode;
+    body?: TSParser.SyntaxNode;
     /**
      * An identifier.
      */
     name?: string;
+
+    [k: string]: any;
   }
 
-  export interface Function extends Base {}
+  export interface Function extends Base {
+    generics: string[];
+    params: any;
+    returnType?: string;
+  }
 
   export interface Call extends Base {}
 
