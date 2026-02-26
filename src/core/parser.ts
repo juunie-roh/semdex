@@ -46,33 +46,27 @@ class Parser {
 
   /**
    * Parses a source file using the language registered for its file extension.
-   * @param file Path to the source file to parse.
+   * @param filePath Path to the source file to parse.
    * @param oldTree Previous tree for incremental parsing.
    * @param options Parsing options passed to tree-sitter.
    * @throws If no language is registered for the file's extension.
-   * @throws If the language fails to parse the file.
    */
   public parse(
-    file: string,
+    filePath: string,
     oldTree?: TSParser.Tree | null,
     options?: TSParser.Options,
   ) {
-    const ext = path.extname(file);
+    const ext = path.extname(filePath);
     if (!this._languages.has(ext))
       throw new CoreError(
         "CORE_UNSUPPORTED_LANGUAGE",
         `Unsupported file extension: ${ext}`,
       );
 
-    try {
-      return this._languages.get(ext)!.parse(file, oldTree, options);
-    } catch (e) {
-      throw new CoreError(
-        "CORE_PLUGIN_PARSE_FAILED",
-        `Failed to parse ${file}`,
-        { cause: e },
-      );
-    }
+    const language = this._languages.get(ext)!;
+
+    const tree = language.parse(filePath, oldTree, options);
+    return language.convert(filePath, tree.rootNode);
   }
 
   /**
