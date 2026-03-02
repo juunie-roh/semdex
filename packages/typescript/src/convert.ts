@@ -6,9 +6,10 @@ function fromImports(imports: Capture.Import[]): Node[] {
   for (const imp of imports) {
     if (!imp.source) continue;
 
+    // caller-to-callee
     const edge: Edge = {
-      from: imp.source,
-      to: imp.id,
+      from: imp.id,
+      to: imp.source,
       kind: "import",
     };
 
@@ -25,7 +26,7 @@ function fromImports(imports: Capture.Import[]): Node[] {
   return nodes;
 }
 
-function convert(captures: Capture.Result) {
+function convert(captures: Capture.Result): Node[] {
   const nodes = fromImports(captures.imports);
 
   return nodes;

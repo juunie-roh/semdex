@@ -4,9 +4,6 @@ import type { Capture } from "./models";
 
 /**
  * Get 1-depth children of a given node.
- * @param node
- * @param query
- * @returns
  */
 function getMatches(
   node: TSParser.SyntaxNode,
@@ -26,9 +23,6 @@ function getMatches(
 
 /**
  * Group the matches by a tag.
- * @param tag
- * @param matches
- * @returns
  */
 function groupBy(
   tag: string,
@@ -40,13 +34,40 @@ function groupBy(
 }
 
 /**
- * Find a {@link TSParser.SyntaxNode | node} that has given name within a {@link TSParser.QueryMatch | match}.
- * @param name
- * @param match
- * @returns
+ * Find a {@link TSParser.SyntaxNode | node} by name within a {@link TSParser.QueryMatch | match}.
  */
 function getByName(name: string, match: TSParser.QueryMatch) {
   return match.captures.find((c) => c.name === name)?.node;
+}
+
+/**
+ * Parse a single import clause child node into its {@link Capture.Import} name entries.
+ */
+function parseImportName(
+  node: TSParser.SyntaxNode,
+): NonNullable<Capture.Import["names"]> {
+  if (node.type === "identifier") {
+    return [{ type: "default", name: node.text }];
+  }
+  if (node.type === "named_imports") {
+    return node.namedChildren
+      .filter((p) => p.type === "import_specifier")
+      .map((f) => ({
+        type: "named_imports",
+        name: f.childForFieldName("name")!.text,
+        alias: f.childForFieldName("alias")?.text,
+      }));
+  }
+  if (node.type === "namespace_import") {
+    return [
+      {
+        type: "namespace_import",
+        name: "*",
+        alias: node.firstNamedChild?.text,
+      },
+    ];
+  }
+  return [];
 }
 
 function getImports(
@@ -55,40 +76,14 @@ function getImports(
 ): Capture.Import[] {
   const imports = groupBy("import", matches).map((match) => {
     const get = (name: string) => getByName(name, match);
-
-    const names = get("names")?.namedChildren.flatMap((c) => {
-      if (c.type === "identifier") {
-        return {
-          type: "default",
-          name: c.text,
-        };
-      } else if (c.type === "named_imports") {
-        return c.namedChildren
-          .filter((p) => p.type === "import_specifier")
-          .map((f) => {
-            return {
-              type: "named_imports",
-              name: f.childForFieldName("name")!.text,
-              alias: f.childForFieldName("alias")?.text,
-            };
-          });
-      } else if (c.type === "namespace_import") {
-        return {
-          type: "namespace_import",
-          name: "*",
-          alias: c.firstNamedChild?.text,
-        };
-      }
-      return [];
-    });
-
     return {
       id: filePath,
-      names,
+      names: get("names")?.namedChildren.flatMap(parseImportName),
       source: get("source")!.text,
     };
   });
 
+  // consolidate identical sources
   const map = new Map<string, Capture.Import>();
   for (const curr of imports) {
     const existing = map.get(curr.source);
