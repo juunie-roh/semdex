@@ -4,17 +4,26 @@
 /* =========================
    Import Statements
 ========================= */
+// @ts-expect-error: mock import source
+import default_module from "default-import-source";
+import mixed_default_module, {
+  mixed_named_import_1,
+  mixed_named_import_2 as mixed_import_alias_2,
+  // @ts-expect-error: mock import source
+} from "mixed-import-source";
+// @ts-expect-error: mock import source
+import mixed_default_module_2, * as mixed_namespace from "mixed-import-source";
+// @ts-expect-error: mock import source
+import { default as default_module_alias } from "named-import-default";
 import {
   named_import_1,
   named_import_2,
   named_import_3,
   named_import_4 as aliased_named_import_4,
   // @ts-expect-error: mock import source
-} from "import-source";
+} from "named-import-source";
 // @ts-expect-error: mock import source
-import default_module from "import-source";
-// @ts-expect-error: mock import source
-import * as default_module_alias from "import-source";
+import * as namespace_alias from "namespace-import-source";
 
 /* =========================
    Functions
