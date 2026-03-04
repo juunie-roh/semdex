@@ -8,7 +8,9 @@ type SpineErrorCode =
   | "CORE_NO_CONFIG"
   | "CORE_UNSUPPORTED_LANGUAGE"
   | "CORE_PLUGIN_LOAD_FAILED"
-  | "CORE_PLUGIN_PARSE_FAILED";
+  | "CORE_PLUGIN_PARSE_FAILED"
+  // graph
+  | "GRAPH_NO_NODE";
 
 class SpineError extends Error {
   readonly code: SpineErrorCode;
