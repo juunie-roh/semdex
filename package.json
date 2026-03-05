@@ -3,6 +3,22 @@
   "version": "0.0.0",
   "description": "An AST-based code indexer",
   "keywords": [],
+  "author": "Juun",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/juunie-roh/spine.git"
+  },
+  "homepage": "https://github.com/juunie-roh/spine#readme",
+  "bugs": {
+    "url": "https://github.com/juunie-roh/spine/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": "^22.13.0 || >=24"
+  },
   "main": "dist/index.js",
   "module": "dist/index.js",
   "bin": "dist/bin/spine.js",
@@ -30,6 +46,7 @@
   },
   "scripts": {
     "build": "tsup",
+    "build:all": "pnpm build && pnpm -r build",
     "check-types": "tsc -p ./tsconfig.json --noEmit",
     "dev": "tsup --watch",
     "lint": "eslint .",
@@ -39,15 +56,6 @@
     "test:watch": "vitest watch --coverage",
     "ts": "pnpm --filter @juun-roh/spine-typescript",
     "tsx": "pnpm --filter @juun-roh/spine-tsx"
-  },
-  "author": "Juun",
-  "license": "MIT",
-  "packageManager": "pnpm@10.30.3",
-  "publishConfig": {
-    "access": "public"
-  },
-  "engines": {
-    "node": "^22.13.0 || >=24"
   },
   "dependencies": {
     "commander": "^14.0.3",
@@ -83,6 +91,7 @@
       "path": "@commitlint/cz-commitlint"
     }
   },
+  "packageManager": "pnpm@10.30.3",
   "pnpm": {
     "overrides": {
       "tmp": ">=0.2.4",
