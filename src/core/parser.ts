@@ -11,27 +11,14 @@ import { Language } from "./language";
 class Parser {
   private _languages: Map<string, Language>;
 
-  private constructor(config: Config) {
+  constructor(config: Config) {
+    this._assertConfig(config);
     this._languages = new Map();
     config.language.forEach((p) => {
       this._languages.set(p.ext, new Language(p.name));
     });
   }
 
-  /**
-   * Returns the singleton instance, creating it on first call.
-   * @param config Required on first call to initialize the parser; ignored thereafter.
-   * @throws If called for the first time without a config.
-   */
-  static create(config?: Config): Parser {
-    if (!config)
-      throw new CoreError(
-        "CORE_NO_CONFIG",
-        "Configuration must be specified for initialization",
-      );
-
-    return new Parser(config);
-  }
   /**
    * {@link Language | spine `Language`} instances keyed by file extension.
    */
@@ -75,11 +62,13 @@ class Parser {
   }
 
   /**
-   * Cleans up resources and resets the singleton instance.
+   * Cleans up all registered language resources.
    */
   destroy(): void {
     this._languages.clear();
   }
+
+  private _assertConfig(config: Config): asserts config is Config {}
 }
 
 export { Parser };

@@ -23,7 +23,7 @@ program
   )
   .action((file, others, options, command) => {
     const config = loadConfig(options.path);
-    const parser = Parser.create(config);
+    const parser = new Parser(config);
     const { nodes, edges } = parser.parse(file, readFileSync(file, "utf-8"));
     // add root file node once
     nodes.push({ id: file, kind: "file" });
