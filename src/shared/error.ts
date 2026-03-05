@@ -21,7 +21,6 @@ class SpineError extends Error {
     super(message, options);
     this.name = this.constructor.name;
     this.code = code;
-    console.error(`[${code}] ${message}`);
   }
 }
 
