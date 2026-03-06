@@ -14,7 +14,8 @@ program
   .description(pkg.description)
   .argument("<file>", "a target file name to parse")
   .argument("[others...]", "additional files")
-  .option("-l, --list", "print a list of nodes", true)
+  .option("-l, --list", "print a list of nodes", false)
+  .option("-d, --dot [name]", "print the graph in DOT format", false)
   .option("-o, --output <output>", "output file name", "spine-output.txt")
   .option(
     "-p, --path <config-path>",
@@ -28,8 +29,16 @@ program
     // add root file node once
     nodes.push({ id: file, kind: "file" });
 
-    const graph = Graph.build(nodes, edges);
-    console.log(graph.serialize());
+    const graph = new Graph(nodes, edges);
+
+    if (options.list) {
+      console.log(graph.serialize());
+    }
+
+    if (options.dot) {
+      const name = typeof options.dot === "string" ? options.dot : undefined;
+      // console.log(graph.toDot(name));
+    }
 
     if (others) {
       others.forEach((f: string) => {
