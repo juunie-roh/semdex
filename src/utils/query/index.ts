@@ -1,4 +1,3 @@
-import { merge } from "./merge";
-import { normalize } from "./normalize";
+import { scmPlugin } from "./scm-plugin";
 
-export { merge, normalize };
+export { scmPlugin };
