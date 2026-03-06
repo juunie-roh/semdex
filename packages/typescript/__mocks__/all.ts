@@ -84,6 +84,16 @@ function nested_function() {
   }
 }
 
+const nested_arrow_function = () => {
+  const nested_arrow_function2 = () => {
+    const nested_arrow_function3 = () => {
+      const nested_arrow_function4 = () => {
+        const nested_arrow_function5 = () => {};
+      };
+    };
+  };
+};
+
 /* =========================
    Exported Declarations
 ========================= */
