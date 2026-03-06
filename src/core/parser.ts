@@ -33,6 +33,7 @@ class Parser {
    * @param options Parsing options passed to tree-sitter.
    * @throws If no language is registered for the file's extension.
    * @throws If the language is registered but cannot be found in runtime.
+   * @throws If the file has any syntax error.
    */
   parse(
     filePath: string,
@@ -57,6 +58,11 @@ class Parser {
     );
 
     const tree = language.parse(filePath, source, oldTree, options);
+
+    if (tree.rootNode.hasError) {
+      throw new CoreError("CORE_SYNTAX_ERROR", `Syntax error in ${filePath}`);
+    }
+
     return language.extract(filePath, tree.rootNode);
   }
 
