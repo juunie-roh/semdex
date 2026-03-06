@@ -48,7 +48,7 @@ interface Node {
                     //      "packages/typescript/__mocks__/all.ts:aliased_named_import_4"
   kind: string;
   range?: Range;    // file location pointer
-  props?: Record<string, unknown>;  // language-specific, core ignores
+  props?: Record<string, unknown>;  // language-specific, core carries along but does not touches
 }
 
 interface Edge {
@@ -118,4 +118,4 @@ The interface hasn't settled yet.
 
 ## CI
 
-Node 22.x only. Tree-Sitter requires native binaries; prebuilt binaries are available for Node 22. Node 24/25 support is pending upstream.
+Tested on Node 22.x, 24.x, and 25.x. Tree-Sitter has prebuilt binaries for Node 22; on Node 24/25 it builds from source, which requires `python3`, `make`, and `g++`, and `CXXFLAGS=-std=c++20` set at install time.
