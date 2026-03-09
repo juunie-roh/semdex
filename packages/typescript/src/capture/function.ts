@@ -1,9 +1,10 @@
+import { createNodeId } from "@juun-roh/spine/utils";
 import type TSParser from "tree-sitter";
 
 import { Capture } from "@/models";
-import { query } from "@/queries";
 
 import { capture } from "./capture";
+import { query } from "./query";
 import { getMatches, getNode } from "./utils";
 
 function getFunctions(
@@ -16,7 +17,7 @@ function getFunctions(
     const get = (name: string) => getNode(name, match);
 
     const name = get("name")!.text;
-    const id = `${parentId}:${name}`;
+    const id = createNodeId(parentId, name);
 
     return {
       id,

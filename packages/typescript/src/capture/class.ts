@@ -1,9 +1,10 @@
+import { createNodeId } from "@juun-roh/spine/utils";
 import type TSParser from "tree-sitter";
 
 import { Capture } from "@/models";
-import { query } from "@/queries";
 
 import { capture } from "./capture";
+import { query } from "./query";
 import { getMatches, getNode, groupMatches } from "./utils";
 
 function getClassBody(
@@ -16,14 +17,14 @@ function getClassBody(
     const get = (name: string) => getNode(name, match);
     const name = get("name")!.text;
 
-    const id = `${parentId}:${name}`;
+    const id = createNodeId(parentId, name);
 
     return {
       id,
       node: get("method")!,
       body: capture(get("body")!, id),
       name,
-      modifier: get("modifier")?.text,
+      modifier: get("modifier")?.text ?? "public",
       is_static: get("is_static") !== undefined,
       type_params: get("type_params")?.namedChildren.map((c) => c.text) ?? [],
       params: get("params")?.namedChildren.map((c) => c.text) ?? [],
@@ -36,7 +37,7 @@ function getClassBody(
     const name = get("name")!.text;
 
     return {
-      id: `${parentId}:${name}`,
+      id: createNodeId(parentId, name),
       node: get("field")!,
       name,
       modifier: get("modifier")?.text,
@@ -59,12 +60,12 @@ function getClasses(
     const get = (name: string) => getNode(name, match);
 
     const name = get("name")!.text;
-    const id = `${parentId}:${name}`;
+    const id = createNodeId(parentId, name);
     const heritage = get("heritage");
 
     return {
       id,
-      node: get("class")!,
+      node: (get("class") ?? get("abstract_class"))!,
       body: getClassBody(get("body")!, id)!,
       name,
 

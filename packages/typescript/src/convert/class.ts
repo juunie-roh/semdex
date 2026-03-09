@@ -83,35 +83,37 @@ function convertClasses(
   const edges: Edge[] = [];
   const nodes: Node[] = [];
 
-  for (const cls of classes) {
-    edges.push({
-      from: parentId,
-      to: cls.id,
-      kind: "defines",
-      resolved: true,
-    } satisfies Edge);
+  if (classes.length > 0) {
+    for (const cls of classes) {
+      edges.push({
+        from: parentId,
+        to: cls.id,
+        kind: "defines",
+        resolved: true,
+      } satisfies Edge);
 
-    nodes.push({
-      id: cls.id,
-      kind: "class",
-      range: {
-        startIndex: cls.node.startIndex,
-        endIndex: cls.node.endIndex,
-        startPosition: cls.node.startPosition,
-        endPosition: cls.node.endPosition,
-      },
-      props: {
-        name: cls.name,
-        type_params: cls.type_params,
-        extends: cls.extends,
-        implements: cls.implements,
-      },
-    } satisfies Node);
+      nodes.push({
+        id: cls.id,
+        kind: "class",
+        range: {
+          startIndex: cls.node.startIndex,
+          endIndex: cls.node.endIndex,
+          startPosition: cls.node.startPosition,
+          endPosition: cls.node.endPosition,
+        },
+        props: {
+          name: cls.name,
+          type_params: cls.type_params,
+          extends: cls.extends,
+          implements: cls.implements,
+        },
+      } satisfies Node);
 
-    if (cls.body) {
-      const nested = convertClassBody(cls.body, cls.id);
-      edges.push(...nested.edges);
-      nodes.push(...nested.nodes);
+      if (cls.body) {
+        const nested = convertClassBody(cls.body, cls.id);
+        edges.push(...nested.edges);
+        nodes.push(...nested.nodes);
+      }
     }
   }
 

@@ -1,8 +1,8 @@
 import type TSParser from "tree-sitter";
 
 import { Capture } from "@/models";
-import { query } from "@/queries";
 
+import { query } from "./query";
 import { getMatches, getNode, groupMatches } from "./utils";
 
 function parseType(node?: TSParser.SyntaxNode): Capture.Import["type"] {

@@ -3,12 +3,11 @@ import type TSParser from "tree-sitter";
 import TypeScript from "tree-sitter-typescript";
 
 import type { QueryTag } from "@/models";
-
-import classQueryString from "./class.scm";
-import classBodyQueryString from "./class_body.scm";
-import functionQueryString from "./function.scm";
-import importQueryString from "./import.scm";
-import paramsQueryString from "./params.scm";
+import classQueryString from "@/queries/class.scm";
+import classBodyQueryString from "@/queries/class_body.scm";
+import functionQueryString from "@/queries/function.scm";
+import importQueryString from "@/queries/import.scm";
+import paramsQueryString from "@/queries/params.scm";
 
 const language = TypeScript.typescript as TSParser.Language;
 

@@ -6,6 +6,6 @@
       (array_pattern)? @array_pattern
       (object_pattern)? @object_pattern
     right:
-      (expression) @value
+      (expression) @assignment_value
   )?
 )
