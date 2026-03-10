@@ -10,15 +10,15 @@ function toDot(graph: Graph, name = "spine"): string {
     "  rankdir=LR;",
   ];
 
-  // Build a scope tree from all node IDs split by ":"
+  // Build a scope tree from all node IDs split by "::"
   const scopeChildren = new Map<string, Set<string>>();
   scopeChildren.set("", new Set());
 
   for (const id of graph.nodes.keys()) {
-    const parts = id.split(":");
+    const parts = id.split("::");
     for (let i = 1; i <= parts.length; i++) {
-      const scope = parts.slice(0, i).join(":");
-      const parent = parts.slice(0, i - 1).join(":");
+      const scope = parts.slice(0, i).join("::");
+      const parent = parts.slice(0, i - 1).join("::");
       if (!scopeChildren.has(parent)) scopeChildren.set(parent, new Set());
       scopeChildren.get(parent)!.add(scope);
       if (!scopeChildren.has(scope)) scopeChildren.set(scope, new Set());
@@ -31,9 +31,13 @@ function toDot(graph: Graph, name = "spine"): string {
       const hasChildren = (childChildren?.size ?? 0) > 0;
       const isNode = graph.nodes.has(child);
       const node = isNode ? graph.nodes.get(child) : undefined;
-      const label = node?.kind === "module" ? child : child.split(":").pop()!;
+      const label = node?.kind === "module" ? child : child.split("::").pop()!;
 
-      if (hasChildren || child.includes(":")) {
+      if (
+        (hasChildren || child.includes("::")) &&
+        node?.kind !== "variable" &&
+        node?.kind !== "member"
+      ) {
         lines.push(`${indent}subgraph ${JSON.stringify("cluster_" + child)} {`);
         lines.push(`${indent}  label=${JSON.stringify(label)};`);
         if (node) {
