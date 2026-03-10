@@ -41,17 +41,23 @@ class QueryMap<K extends string = string> extends Map<K, TSParser.Query> {
   match(
     key: K,
     node: TSParser.SyntaxNode,
-    typesToInclude?: string[],
+    typesToInclude?: string | string[],
   ): TSParser.QueryMatch[] {
-    const matches = this.get(key).matches(node);
+    const { startIndex, endIndex, id } = node;
+    const matches = this.get(key).matches(node, { startIndex, endIndex });
 
-    return matches.filter((match) =>
+    const set = new Set(typesToInclude);
+
+    const filtered = matches.filter((match) =>
       match.captures.some(
         (captured) =>
-          captured.node.parent?.id === node.id ||
-          typesToInclude?.some((type) => type === captured.node.parent?.type),
+          captured.node.parent &&
+          (captured.node.parent.id === id ||
+            set.has(captured.node.parent.type)),
       ),
     );
+
+    return filtered;
   }
 }
 
