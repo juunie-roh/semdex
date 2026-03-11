@@ -15,7 +15,7 @@
         (shorthand_property_identifier_pattern) @name)
     ]
     type: (type_annotation (type) @type)?)
-) @variable
+) @node
 
 ;; @kind = "var"
 (variable_declaration
@@ -29,4 +29,4 @@
         (shorthand_property_identifier_pattern) @name)
     ]
     type: (type_annotation (type) @type)?)
-) @variable
+) @node

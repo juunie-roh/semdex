@@ -18,7 +18,7 @@
     ])?
   source: (string (string_fragment) @source)
   (#not-eq? @is_type "type")
-) @import
+) @node
 
 ;; import type @name from "@source";
 ;; import type * as @name from "@source";
@@ -35,7 +35,7 @@
           alias: (identifier)? @alias))
     ])
   source: (string (string_fragment) @source)
-) @import
+) @node
 
 ;; import { type @name as @alias } from "@source";
 (import_statement
@@ -46,4 +46,4 @@
         name: (identifier) @name
         alias: (identifier)? @alias)))
   source: (string (string_fragment) @source)
-) @import
+) @node

@@ -19,7 +19,7 @@ function convertVariables(
   for (const v of variables) {
     const id = createCanonicalId(parentId, v.name.text);
 
-    const declarator = v.variable.namedChildren.find(
+    const declarator = v.node.namedChildren.find(
       (c) => c.type === "variable_declarator",
     );
 
@@ -41,10 +41,10 @@ function convertVariables(
       id,
       kind: "variable",
       range: {
-        startIndex: v.variable.startIndex,
-        endIndex: v.variable.endIndex,
-        startPosition: v.variable.startPosition,
-        endPosition: v.variable.endPosition,
+        startIndex: v.node.startIndex,
+        endIndex: v.node.endIndex,
+        startPosition: v.node.startPosition,
+        endPosition: v.node.endPosition,
       },
       props: {
         name: v.name.text,

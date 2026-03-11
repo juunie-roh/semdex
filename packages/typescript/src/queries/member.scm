@@ -5,4 +5,4 @@
   ("static")? @is_static
   name: (_) @name
   (type_annotation (type) @type)?
-) @member
+) @node

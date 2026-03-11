@@ -25,10 +25,10 @@ function convertMethod(
       id: id,
       kind: "method",
       range: {
-        startIndex: method.method.startIndex,
-        endIndex: method.method.endIndex,
-        startPosition: method.method.startPosition,
-        endPosition: method.method.endPosition,
+        startIndex: method.node.startIndex,
+        endIndex: method.node.endIndex,
+        startPosition: method.node.startPosition,
+        endPosition: method.node.endPosition,
       },
 
       props: {
@@ -72,10 +72,10 @@ function convertMember(
       id,
       kind: "member",
       range: {
-        startIndex: member.member.startIndex,
-        endIndex: member.member.endIndex,
-        startPosition: member.member.startPosition,
-        endPosition: member.member.endPosition,
+        startIndex: member.node.startIndex,
+        endIndex: member.node.endIndex,
+        startPosition: member.node.startPosition,
+        endPosition: member.node.endPosition,
       },
       props: {
         name: member.name.text,
@@ -114,10 +114,10 @@ function convertClasses(
         id,
         kind: "class",
         range: {
-          startIndex: cls.class.startIndex,
-          endIndex: cls.class.endIndex,
-          startPosition: cls.class.startPosition,
-          endPosition: cls.class.endPosition,
+          startIndex: cls.node.startIndex,
+          endIndex: cls.node.endIndex,
+          startPosition: cls.node.startPosition,
+          endPosition: cls.node.endPosition,
         },
         props: {
           name: cls.name.text,

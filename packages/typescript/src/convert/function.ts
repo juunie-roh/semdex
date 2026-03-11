@@ -17,10 +17,10 @@ function convertFunctions(
 
   for (const func of functions) {
     const range: NonNullable<Node["range"]> = {
-      startIndex: func.function.startIndex,
-      endIndex: func.function.endIndex,
-      startPosition: func.function.startPosition,
-      endPosition: func.function.endPosition,
+      startIndex: func.node.startIndex,
+      endIndex: func.node.endIndex,
+      startPosition: func.node.startPosition,
+      endPosition: func.node.endPosition,
     };
 
     const id = createCanonicalId(parentId, func.name.text);

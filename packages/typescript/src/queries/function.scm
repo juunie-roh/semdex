@@ -8,7 +8,7 @@
   parameters: (formal_parameters) @params
   return_type: (type_annotation (_) @return_type)?
   body: (statement_block) @body
-)@function
+)@node
 
 (generator_function_declaration
   "async"? @is_async
@@ -17,7 +17,7 @@
   parameters: (formal_parameters) @params
   return_type: (type_annotation (_) @return_type)?
   body: (statement_block) @body
-) @function
+) @node
 
 ;; arrow function / function expression
 ;; const/let @name = @is_async @params: @return_type => @body
@@ -39,7 +39,7 @@
         return_type: (type_annotation (_) @return_type)?
         body: (statement_block) @body)
     ])
-) @function
+) @node
 
 ;; var @name = @is_async @params: @return_type => @body
 ;; var @name = @is_async function @params: @return_type @body
@@ -60,4 +60,4 @@
         return_type: (type_annotation (_) @return_type)?
         body: (statement_block) @body)
     ])
-) @function
+) @node

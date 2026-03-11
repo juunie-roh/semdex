@@ -10,7 +10,7 @@
   return_type: (type_annotation (_) @return_type)?
   body: (statement_block) @body
   (#not-match? @name "^(constructor)$")
-) @method
+) @node
 
 ;; arrow function / function expression methods
 ;; @modifier @is_static @name = @is_async @type_params@params: @return_type => @body
@@ -33,4 +33,4 @@
       return_type: (type_annotation (_) @return_type)?
       body: (statement_block) @body)
   ]
-) @method
+) @node

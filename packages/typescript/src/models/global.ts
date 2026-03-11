@@ -27,8 +27,18 @@ type Edge = Spine.Edge<EdgeKind>;
 type Graph = Spine.Graph<Node, Edge>;
 
 type QueryTag = {
+  abstract_class: {
+    required: "node" | "name" | "body";
+    optional:
+      | "heritage"
+      | "extends"
+      | "extends_body"
+      | "implements"
+      | "type_args"
+      | "type_params";
+  };
   class: {
-    required: "class" | "name" | "body";
+    required: "node" | "name" | "body";
     optional:
       | "heritage"
       | "extends"
@@ -38,19 +48,19 @@ type QueryTag = {
       | "type_params";
   };
   function: {
-    required: "function" | "name" | "params" | "body";
+    required: "node" | "name" | "params" | "body";
     optional: "is_async" | "type_params" | "return_type";
   };
   import: {
-    required: "import" | "name" | "source";
+    required: "node" | "name" | "source";
     optional: "alias" | "is_type" | "type";
   };
   member: {
-    required: "member" | "name";
+    required: "node" | "name";
     optional: "modifier" | "is_static" | "type";
   };
   method: {
-    required: "method" | "name" | "body" | "params";
+    required: "node" | "name" | "body" | "params";
     optional:
       | "modifier"
       | "is_static"
@@ -63,7 +73,7 @@ type QueryTag = {
     optional: string;
   };
   variable: {
-    required: "variable" | "name" | "kind";
+    required: "node" | "name" | "kind";
     optional: "key" | "type";
   };
 };
