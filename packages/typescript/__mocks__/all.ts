@@ -5,23 +5,37 @@
    Import Statements
 ========================= */
 // @ts-expect-error: mock import source
-import default_module from "default-import-source";
+import type default_type from "default-source";
+// @ts-expect-error: mock import source
+import default_module from "default-source";
+// @ts-expect-error: mock import source
+import { default as default_module_alias } from "default-source";
 import mixed_default_module, {
   mixed_named_import_1,
   mixed_named_import_2 as mixed_import_alias_2,
   // @ts-expect-error: mock import source
-} from "mixed-import-source_1";
+} from "mixed-source";
 // @ts-expect-error: mock import source
-import mixed_default_module_2, * as mixed_namespace from "mixed-import-source_2";
-// @ts-expect-error: mock import source
-import { default as default_module_alias } from "named-import-default";
+import mixed_default_module_2, * as mixed_namespace from "mixed-source";
+import {
+  named_import as named__import_alias,
+  type named_type as named_type_alias,
+  // @ts-expect-error: mock import source
+} from "mixed-source";
+import type {
+  named_type,
+  named_type_2 as named_type_alias_2,
+  // @ts-expect-error: mock import source
+} from "named-source";
 import {
   named_import_1,
   named_import_2 as aliased_named_import_2,
   // @ts-expect-error: mock import source
-} from "named-import-source";
+} from "named-source";
 // @ts-expect-error: mock import source
-import * as namespace_alias from "namespace-import-source";
+import type * as namespace_type from "namespace-source";
+// @ts-expect-error: mock import source
+import * as namespace_alias from "namespace-source";
 
 /* =========================
    Functions
@@ -68,7 +82,7 @@ const arrow_function_with_generics = <T>(a: T): T => a;
 (function iife() {})();
 
 /* =========================
-   Nested Declarations
+   Nested Function Declarations
 ========================= */
 function nested_function() {
   function nested_function2() {
@@ -95,24 +109,11 @@ const nested_arrow_function = () => {
 ========================= */
 
 export function exported_function() {}
-
-/* =========================
-   Call Expressions
-========================= */
-function_declaration();
-function_declaration_with_params(1);
-function_declaration_with_optional_param(1, "a");
-function_declaration_with_generics<number>(1);
-function_declaration_with_multiple_generics<number, string>(1, "a");
-z<string>("a");
-
-const call_result = function_declaration_with_native_return_type();
-const chained_call = assigned_function_named();
-const nested_call = function_declaration_with_params(
-  function_declaration_with_native_return_type(),
-);
-const spread_call = function_declaration_with_rest_params(...[1, 2, 3]);
-const optional_call = (null as unknown as typeof function_declaration)?.();
+export class exported_class {}
+export const exported_const = 1;
+export let exported_let: any;
+export var exported_var: any;
+export abstract class exported_abstract_class {}
 
 /* =========================
    Primitive Types
@@ -254,9 +255,9 @@ const obj_call = obj.e();
    Abstract Class
 ========================= */
 abstract class abstract_class_declaration {
-  abstract abstract_method(): void;
+  abstract abstract_method<T>(): void;
   private static private_static_method() {}
-  abstract abstract_arrow: () => void;
+  abstract abstract_arrow: <T>() => void;
   protected abstract protected_abstract(): void;
 }
 

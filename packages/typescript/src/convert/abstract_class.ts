@@ -3,11 +3,12 @@ import { createCanonicalId } from "@juun-roh/spine/utils";
 import { capture } from "@/capture";
 import type { Capture, Edge, Node } from "@/types";
 
+import { convertAbstractMethods } from "./abstract-method";
 import { convertMember } from "./member";
 import { convertMethod } from "./method";
 
-function convertClasses(
-  classes: Capture<"class">[],
+function convertAbstractClasses(
+  abstractClasses: Capture<"abstract_class">[],
   parentId: string,
 ): {
   edges: Edge[];
@@ -16,8 +17,8 @@ function convertClasses(
   const edges: Edge[] = [];
   const nodes: Node[] = [];
 
-  if (classes.length > 0) {
-    for (const cls of classes) {
+  if (abstractClasses.length > 0) {
+    for (const cls of abstractClasses) {
       const id = createCanonicalId(parentId, cls.name.text);
 
       edges.push({
@@ -29,7 +30,7 @@ function convertClasses(
 
       nodes.push({
         id,
-        kind: "class",
+        kind: "abstract_class",
         range: {
           startIndex: cls.node.startIndex,
           endIndex: cls.node.endIndex,
@@ -45,10 +46,22 @@ function convertClasses(
       } satisfies Node);
 
       if (cls.body) {
+        const abstract_methods = convertAbstractMethods(
+          capture(cls.body, "abstract_method"),
+          id,
+        );
         const methods = convertMethod(capture(cls.body, "method"), id);
         const members = convertMember(capture(cls.body, "member"), id);
-        edges.push(...methods.edges, ...members.edges);
-        nodes.push(...methods.nodes, ...members.nodes);
+        edges.push(
+          ...abstract_methods.edges,
+          ...methods.edges,
+          ...members.edges,
+        );
+        nodes.push(
+          ...abstract_methods.nodes,
+          ...methods.nodes,
+          ...members.nodes,
+        );
       }
     }
   }
@@ -56,4 +69,4 @@ function convertClasses(
   return { edges, nodes };
 }
 
-export { convertClasses };
+export { convertAbstractClasses };

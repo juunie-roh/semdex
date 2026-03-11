@@ -4,8 +4,9 @@ import { query } from "./query";
 import { QueryTag } from "./types";
 
 const capture = createCapture<QueryTag>(query, {
-  function: { include: "export_statement" },
+  abstract_class: { include: "export_statement" },
   class: { include: "export_statement" },
+  function: { include: "export_statement" },
   variable: { include: "export_statement" },
 });
 

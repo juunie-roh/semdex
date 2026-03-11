@@ -36,6 +36,7 @@ function toDot(graph: Graph, name = "spine"): string {
       if (
         (hasChildren || child.includes("::")) &&
         node?.kind !== "variable" &&
+        node?.kind !== "type" &&
         node?.kind !== "member"
       ) {
         lines.push(`${indent}subgraph ${JSON.stringify("cluster_" + child)} {`);

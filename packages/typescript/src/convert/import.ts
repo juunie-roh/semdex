@@ -14,16 +14,18 @@ function convertImports(
   const sources = new Set<string>();
 
   for (const captured of captures) {
-    const { source, name, type, alias } = captured;
+    const { source, name, alias, is_type } = captured;
     if (!sources.has(source.text)) {
       sources.add(source.text);
     }
 
-    const representative = alias ? alias.text : name.text;
+    const representative = alias?.text ?? name?.text ?? undefined;
+    const isType = is_type ? true : false;
 
     if (representative) {
       // defines
       const defId = createCanonicalId(parentId, representative);
+
       edges.push({
         from: parentId,
         to: defId,
@@ -33,32 +35,27 @@ function convertImports(
 
       nodes.push({
         id: defId,
-        kind: "variable",
+        kind: isType ? "type" : "variable",
         props: alias
           ? {
-              alias_of: name.text,
+              alias_of: name!.text,
+              is_type: isType,
               source: source.text,
             }
           : undefined,
       } satisfies Node);
     }
-
-    // import relationship
-    edges.push({
-      from: parentId,
-      to: source.text,
-      kind: "imports",
-      resolved: true,
-      props: type
-        ? {
-            type,
-          }
-        : undefined,
-    } satisfies Edge);
   }
 
   // deduplicated source nodes
   sources.forEach((source) => {
+    edges.push({
+      from: parentId,
+      to: source,
+      kind: "imports",
+      resolved: true,
+    } satisfies Edge);
+
     nodes.push({
       id: source,
       kind: "module",

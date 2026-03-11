@@ -1,4 +1,3 @@
-
 ;; abstract class declaration
 ;; abstract class @name<@type_params> @heritage @body
 (abstract_class_declaration
