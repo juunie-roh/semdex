@@ -2,7 +2,11 @@ import type TSParser from "tree-sitter";
 
 import { SEPARATOR } from "@/consts";
 import type { Query } from "@/models";
-import type { Capture, CaptureConfig, CaptureResult } from "@/models/capture";
+import type {
+  CaptureConfig,
+  FullCaptureResult,
+  SingleCaptureResult,
+} from "@/models/capture";
 import type { QueryMap } from "@/query";
 
 function createCanonicalId(
@@ -16,7 +20,7 @@ function createCanonicalId(
  * Creates a capture function bound to the given query map and configuration.
  *
  * The returned function has two overloads:
- * - `capture(node)` — runs all registered queries against `node` and returns a {@link CaptureResult}.
+ * - `capture(node)` — runs all registered queries against `node` and returns a {@link FullCaptureResult}.
  * - `capture(node, tag)` — runs a single query by `tag` and returns `RawCapture[]` for that tag.
  *
  * The single-tag overload is intended for recursive capture inside convert functions,
@@ -38,29 +42,29 @@ function createCapture<Q extends Query>(
    */
   function toCapture<K extends keyof Q>(
     match: TSParser.QueryMatch,
-  ): Capture<Q[K]> {
+  ): SingleCaptureResult<Q[K]> {
     return Object.fromEntries(
       match.captures.map((c) => [c.name, c.node]),
-    ) as Capture<Q[K]>;
+    ) as SingleCaptureResult<Q[K]>;
   }
 
   /**
    * Captures all registered query tags against a node.
    */
-  function capture(node: TSParser.SyntaxNode): CaptureResult<Q>;
+  function capture(node: TSParser.SyntaxNode): FullCaptureResult<Q>;
   /**
    * Captures all matches for a single query tag.
    */
   function capture<K extends keyof Q>(
     node: TSParser.SyntaxNode,
     tag: K,
-  ): Capture<Q[K]>[];
+  ): SingleCaptureResult<Q[K]>[];
   function capture<K extends keyof Q>(
     node: TSParser.SyntaxNode,
     tag?: K,
-  ): CaptureResult<Q> | Capture<Q[K]>[] {
+  ): FullCaptureResult<Q> | SingleCaptureResult<Q[K]>[] {
     if (!tag) {
-      const result = {} as CaptureResult<Q>;
+      const result = {} as FullCaptureResult<Q>;
       for (const key of query.keys()) {
         result[key] = capture(node, key);
       }

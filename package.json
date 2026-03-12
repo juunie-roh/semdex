@@ -48,6 +48,7 @@
     "build": "tsup",
     "build:all": "pnpm build && pnpm -r build",
     "check-types": "tsc -p ./tsconfig.json --noEmit",
+    "check-types:all": "tsc -p ./tsconfig.json --noEmit && pnpm -r check-types",
     "dev": "tsup --watch",
     "lint": "eslint .",
     "prepare": "husky",

@@ -1,9 +1,9 @@
 import { createCanonicalId } from "semdex/utils";
 
-import type { Capture, Edge, Node } from "@/types";
+import type { Edge, Node, SingleCaptureResult } from "@/types";
 
 function convertAbstractMethods(
-  methods: Capture<"abstract_method">[],
+  methods: SingleCaptureResult<"abstract_method">[],
   parentId: string,
 ): { edges: Edge[]; nodes: Node[] } {
   const edges: Edge[] = [];

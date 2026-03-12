@@ -1,9 +1,9 @@
 import { createCanonicalId } from "semdex/utils";
 
-import type { Capture, Edge, Node } from "@/types";
+import type { Edge, Node, SingleCaptureResult } from "@/types";
 
 function convertMember(
-  members: Capture<"member">[],
+  members: SingleCaptureResult<"member">[],
   parentId: string,
 ): { edges: Edge[]; nodes: Node[] } {
   const edges: Edge[] = [];

@@ -1,12 +1,12 @@
 import { createCanonicalId } from "semdex/utils";
 
 import { capture } from "@/capture";
-import type { Capture, Edge, Node } from "@/types";
+import type { Edge, Node, SingleCaptureResult } from "@/types";
 
 import { convert } from "./convert";
 
 function convertMethod(
-  methods: Capture<"method">[],
+  methods: SingleCaptureResult<"method">[],
   parentId: string,
 ): { edges: Edge[]; nodes: Node[] } {
   const edges: Edge[] = [];

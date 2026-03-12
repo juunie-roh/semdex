@@ -1,5 +1,5 @@
-import type { Capture } from "./capture";
-import type { Edge, Node, QueryTag } from "./global";
+import type { SingleCaptureResult } from "./capture";
+import type { Edge, Node, Query, QueryTag } from "./global";
 
 type ConvertResult<N extends Node, E extends Edge> = {
   nodes: N[];
@@ -7,15 +7,11 @@ type ConvertResult<N extends Node, E extends Edge> = {
 };
 
 type ConvertHandler<T extends QueryTag, N extends Node, E extends Edge> = (
-  captures: Capture<T>[],
+  captures: SingleCaptureResult<T>[],
   parentId: string,
 ) => ConvertResult<N, E>;
 
-type Convert<
-  Q extends Record<string, QueryTag>,
-  N extends Node,
-  E extends Edge,
-> = {
+type Convert<Q extends Query, N extends Node, E extends Edge> = {
   [K in keyof Q]: ConvertHandler<Q[K], N, E>;
 };
 

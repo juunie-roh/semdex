@@ -1,4 +1,4 @@
-import type { CaptureResult, Edge, Node } from "@/types";
+import type { Edge, FullCaptureResult, Node } from "@/types";
 
 import { convertAbstractClasses } from "./abstract_class";
 import { convertClasses } from "./class";
@@ -7,7 +7,7 @@ import { convertImports } from "./import";
 import { convertVariables } from "./variable";
 
 function convert(
-  captures: CaptureResult,
+  captures: FullCaptureResult,
   parentId: string,
 ): { edges: Edge[]; nodes: Node[] } {
   const abstract_classes = convertAbstractClasses(
