@@ -1,4 +1,4 @@
-import path, { join } from "node:path";
+import path from "node:path";
 import { cwd } from "node:process";
 
 import { ConfigError } from "./error";
@@ -20,7 +20,7 @@ function assertConfigPath(configPath: string): void {
 
 function resolveConfigPath(configPath: string): string {
   assertConfigPath(configPath);
-  return path.resolve(join(cwd(), configPath));
+  return path.resolve(cwd(), configPath);
 }
 
 function loadConfig(configPath: string): Config {
