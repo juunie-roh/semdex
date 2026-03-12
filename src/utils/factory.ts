@@ -1,12 +1,16 @@
 import type TSParser from "tree-sitter";
 
 import { SEPARATOR } from "@/consts";
-import type { Query } from "@/models";
 import type {
   CaptureConfig,
+  ConvertConfig,
+  ConvertResult,
+  Edge,
   FullCaptureResult,
+  Node,
+  Query,
   SingleCaptureResult,
-} from "@/models/capture";
+} from "@/models";
 import type { QueryMap } from "@/query";
 
 function createCanonicalId(
@@ -14,6 +18,25 @@ function createCanonicalId(
   name: string,
 ): `${string}${typeof SEPARATOR}${string}` {
   return `${parentID}${SEPARATOR}${name}`;
+}
+
+function createConvertResult<N extends Node, E extends Edge>(): ConvertResult<
+  N,
+  E
+> & {
+  push(...results: ConvertResult<N, E>[]): void;
+} {
+  const result = {
+    nodes: [] as N[],
+    edges: [] as E[],
+    push(...rs: ConvertResult<N, E>[]) {
+      for (const r of rs) {
+        result.nodes.push(...r.nodes);
+        result.edges.push(...r.edges);
+      }
+    },
+  };
+  return result;
 }
 
 /**
@@ -79,4 +102,45 @@ function createCapture<Q extends Query>(
   return capture;
 }
 
-export { createCanonicalId, createCapture };
+function createConvert<Q extends Query, N extends Node, E extends Edge>(
+  capture: ReturnType<typeof createCapture<Q>>,
+  config: ConvertConfig<Q, N, E>,
+) {
+  function convert(
+    captures: FullCaptureResult<Q>,
+    parentId: string,
+  ): ConvertResult<N, E>;
+  function convert<K extends keyof Q>(
+    captures: SingleCaptureResult<Q[K]>[],
+    parentId: string,
+    key: K,
+  ): ConvertResult<N, E>;
+  function convert<K extends keyof Q>(
+    captures: FullCaptureResult<Q> | SingleCaptureResult<Q[K]>[],
+    parentId: string,
+    key?: K,
+  ): ConvertResult<N, E> {
+    const context = { capture, convert };
+
+    if (!key) {
+      const full = captures as FullCaptureResult<Q>;
+      const result = createConvertResult<N, E>();
+
+      for (const k of Object.keys(full) as (keyof Q)[]) {
+        const r = config[k](full[k], parentId, context);
+        result.push(r);
+      }
+      return result;
+    }
+
+    return config[key](
+      captures as SingleCaptureResult<Q[K]>[],
+      parentId,
+      context,
+    );
+  }
+
+  return convert;
+}
+
+export { createCanonicalId, createCapture, createConvert, createConvertResult };

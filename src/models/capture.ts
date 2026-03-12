@@ -1,12 +1,12 @@
 import type TSParser from "tree-sitter";
 
-import type { Query, QueryTag } from "./global";
+import type { Query } from "./global";
 
 type CaptureConfig<Q extends Query> = {
   [K in keyof Q]?: { include?: string | string[] };
 };
 
-type SingleCaptureResult<T extends QueryTag> = {
+type SingleCaptureResult<T extends Query[string]> = {
   [K in T["required"]]: TSParser.SyntaxNode;
 } & {
   [K in T["optional"]]?: TSParser.SyntaxNode;
