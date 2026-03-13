@@ -14,14 +14,20 @@ class QueryMap<K extends string> extends Map<K, TSParser.Query> {
 
   /**
    * Adds a new {@link TSParser.Query | query} instance initialized by value with a specified key to the map.
+   * @param key A name of query to set.
+   * @param value String of tree-sitter query.
    * @throws If the key is already set in the map.
    */
   set(key: K, value: string): this;
+
   /**
    * Adds a new {@link TSParser.Query | query} instance with a specified key to the map.
+   * @param key A name of query to set.
+   * @param value A {@link TSParser.Query | query} instance.
    * @throws If the key is already set in the map.
    */
   set(key: K, value: TSParser.Query): this;
+
   set(key: K, value: string | TSParser.Query): this {
     if (super.has(key)) {
       throw new QueryError(
@@ -42,6 +48,7 @@ class QueryMap<K extends string> extends Map<K, TSParser.Query> {
 
   /**
    * Returns a specified {@link TSParser.Query | query} instance from the map.
+   * @param key A query name set to the map.
    * @throws If the key is not set in the map.
    */
   get(key: K): TSParser.Query {
@@ -55,11 +62,20 @@ class QueryMap<K extends string> extends Map<K, TSParser.Query> {
     return super.get(key)!;
   }
 
+  /**
+   * Returns 1-depth query match result on node.
+   * @param key
+   * @param node
+   * @param options See {@link CaptureConfigOptions}.
+   */
   match(
     key: K,
     node: TSParser.SyntaxNode,
-    { bypass, maxStartDepth = 1 }: CaptureConfigOptions,
+    options?: CaptureConfigOptions,
   ): TSParser.QueryMatch[] {
+    const bypass = options?.bypass;
+    const maxStartDepth = options?.maxStartDepth ?? 1;
+
     const matches = this.get(key).matches(node, {
       startIndex: node.startIndex,
       endIndex: node.endIndex,
