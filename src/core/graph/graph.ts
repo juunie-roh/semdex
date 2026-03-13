@@ -163,7 +163,15 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   }
 
   serialize(): { nodes: N[]; edges: Graph.ResolvedEdge<E>[] } {
-    const nodes = Array.from(this._nodes.values());
+    const nodes = Array.from(
+      this._nodes.values().map((n) => ({
+        ...n,
+        range: {
+          byte: `${n.range?.startIndex}:${n.range?.endIndex}`,
+          line: `L${n.range?.startPosition.row}:L${n.range?.endPosition.row}`,
+        },
+      })),
+    );
     const edges: Graph.ResolvedEdge<E>[] = [];
 
     for (const [from, toMap] of this._edges) {
