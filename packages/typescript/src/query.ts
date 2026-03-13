@@ -11,11 +11,11 @@ import memberQueryString from "@/queries/member.scm";
 import methodQueryString from "@/queries/method.scm";
 import variableQueryString from "@/queries/variable.scm";
 
-import type { Query } from "./types";
+import type { QueryConfig } from "./types";
 
-const language = TypeScript.typescript as TSParser.Language;
+export const language = TypeScript.typescript as TSParser.Language;
 
-const query = new QueryMap<keyof Query>(language)
+export const query = new QueryMap<keyof QueryConfig>(language)
   .set("abstract_class", abstractClassQueryString)
   .set("abstract_method", abstractMethodQueryString)
   .set("class", classQueryString)
@@ -24,5 +24,3 @@ const query = new QueryMap<keyof Query>(language)
   .set("member", memberQueryString)
   .set("method", methodQueryString)
   .set("variable", variableQueryString);
-
-export { language, query };

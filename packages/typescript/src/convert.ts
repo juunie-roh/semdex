@@ -9,7 +9,7 @@ import importHandler from "./handlers/import";
 import memberHandler from "./handlers/member";
 import methodHandler from "./handlers/method";
 import variableHandler from "./handlers/variable";
-import type { ConvertConfig, Edge, Node, Query } from "./types";
+import type { ConvertConfig, Edge, Node, QueryConfig } from "./types";
 
 const config: ConvertConfig = {
   abstract_class: abstractClassHandler,
@@ -22,6 +22,6 @@ const config: ConvertConfig = {
   variable: variableHandler,
 };
 
-const convert = createConvert<Query, Node, Edge>(capture, config);
+const convert = createConvert<QueryConfig, Node, Edge>(capture, config);
 
 export { convert };

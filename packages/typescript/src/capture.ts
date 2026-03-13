@@ -1,13 +1,12 @@
 import { createCapture } from "symbex/utils";
 
 import { query } from "./query";
-import { Query } from "./types";
+import { QueryConfig } from "./types";
 
-const capture = createCapture<Query>(query, {
-  abstract_class: { include: "export_statement" },
-  class: { include: "export_statement" },
-  function: { include: "export_statement" },
-  variable: { include: "export_statement" },
+const capture = createCapture<QueryConfig>(query, {
+  class: { typesToInclude: "export_statement" },
+  function: { typesToInclude: "export_statement" },
+  variable: { typesToInclude: "export_statement" },
 });
 
 export { capture };

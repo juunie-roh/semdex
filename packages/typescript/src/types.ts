@@ -1,6 +1,6 @@
 import type * as symbex from "symbex";
 
-export type Query = {
+export type QueryConfig = {
   abstract_class: {
     required: "node" | "name" | "body";
     optional:
@@ -61,7 +61,7 @@ export type Query = {
 };
 
 // TODO: add other declaration kinds
-export type NodeKind = keyof Query | "file" | "module" | "type";
+export type NodeKind = keyof QueryConfig | "file" | "module" | "type";
 
 export type Node = symbex.Node<NodeKind>;
 
@@ -76,20 +76,20 @@ export type Edge = symbex.Edge<EdgeKind>;
 
 export type Graph = symbex.Graph<Node, Edge>;
 
-export type SingleCaptureResult<K extends keyof Query> =
-  symbex.SingleCaptureResult<Query[K]>;
+export type SingleCaptureResult<K extends keyof QueryConfig> =
+  symbex.SingleCaptureResult<QueryConfig[K]>;
 
-export type FullCaptureResult = symbex.FullCaptureResult<Query>;
+export type FullCaptureResult = symbex.FullCaptureResult<QueryConfig>;
 
-export type ConvertConfig = symbex.ConvertConfig<Query, Node, Edge>;
+export type ConvertConfig = symbex.ConvertConfig<QueryConfig, Node, Edge>;
 
-export type ConvertContext = symbex.ConvertContext<Query, Node, Edge>;
+export type ConvertContext = symbex.ConvertContext<QueryConfig, Node, Edge>;
 
 export type ConvertResult = symbex.ConvertResult<Node, Edge>;
 
-export type ConvertHandler<K extends keyof Query> = symbex.ConvertHandler<
-  Query,
-  Query[K],
+export type ConvertHandler<K extends keyof QueryConfig> = symbex.ConvertHandler<
+  QueryConfig,
+  QueryConfig[K],
   Node,
   Edge
 >;
