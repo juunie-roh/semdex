@@ -13,17 +13,17 @@ import type {
 } from "@/models";
 import type { QueryMap } from "@/query";
 
-function createCanonicalId(
+export function createCanonicalId(
   parentID: string,
   name: string,
 ): `${string}${typeof SEPARATOR}${string}` {
   return `${parentID}${SEPARATOR}${name}`;
 }
 
-function createConvertResult<N extends Node, E extends Edge>(): ConvertResult<
-  N,
-  E
-> & {
+export function createConvertResult<
+  N extends Node,
+  E extends Edge,
+>(): ConvertResult<N, E> & {
   push(...results: ConvertResult<N, E>[]): void;
 } {
   const result = {
@@ -56,7 +56,7 @@ function createConvertResult<N extends Node, E extends Edge>(): ConvertResult<
  * // plugin/src/index.ts
  * export const capture = createCapture<Query>(query, queryConfig);
  */
-function createCapture<Q extends QueryConfig>(
+export function createCapture<Q extends QueryConfig>(
   query: QueryMap<keyof Q & string>,
   config: CaptureConfig<Q>,
 ) {
@@ -106,7 +106,11 @@ function createCapture<Q extends QueryConfig>(
   return capture;
 }
 
-function createConvert<Q extends QueryConfig, N extends Node, E extends Edge>(
+export function createConvert<
+  Q extends QueryConfig,
+  N extends Node,
+  E extends Edge,
+>(
   capture: ReturnType<typeof createCapture<Q>>,
   config: ConvertConfig<Q, N, E>,
 ) {
@@ -146,5 +150,3 @@ function createConvert<Q extends QueryConfig, N extends Node, E extends Edge>(
 
   return convert;
 }
-
-export { createCanonicalId, createCapture, createConvert, createConvertResult };
