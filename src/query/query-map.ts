@@ -2,7 +2,7 @@ import TSParser from "tree-sitter";
 
 import type { CaptureConfigOptions } from "@/models/capture";
 
-import { QueryError } from "./error";
+import QueryError from "./error";
 
 class QueryMap<K extends string> extends Map<K, TSParser.Query> {
   private _language: TSParser.Language;

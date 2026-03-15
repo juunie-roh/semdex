@@ -8,4 +8,4 @@ class CoreError extends SpineError {
   }
 }
 
-export { CoreError };
+export default CoreError;

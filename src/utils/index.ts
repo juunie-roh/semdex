@@ -1,17 +1,17 @@
-import { deepMergeArrays } from "./deep-merge-arrays";
+import deepMergeArrays from "./deep-merge-arrays";
 import {
-  createCanonicalId,
   createCapture,
   createConvert,
   createConvertResult,
+  createSignature,
 } from "./factory";
 import { getRange } from "./node";
 
 export {
-  createCanonicalId,
   createCapture,
   createConvert,
   createConvertResult,
+  createSignature,
   deepMergeArrays,
   getRange,
 };

@@ -13,7 +13,7 @@ import type {
 } from "@/models";
 import type { QueryMap } from "@/query";
 
-export function createCanonicalId(
+export function createSignature(
   parentID: string,
   name: string,
 ): `${string}${typeof SEPARATOR}${string}` {

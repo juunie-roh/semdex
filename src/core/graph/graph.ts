@@ -2,14 +2,17 @@ import { SEPARATOR } from "@/consts";
 import type { Edge, Node } from "@/models";
 import { defined } from "@/shared/defined";
 
-import { GraphError } from "./error";
+import GraphError from "./error";
 
 class Graph<N extends Node = Node, E extends Edge = Edge> {
-  private _nodes: Map<Node["id"], N>;
-  private _edges: Map<Node["id"], Map<Node["id"], Set<E["kind"]>>>;
+  private _nodes: Map<Node["signature"], N>;
+  private _edges: Map<
+    Node["signature"],
+    Map<Node["signature"], Set<E["kind"]>>
+  >;
   private _edgeProps: Map<
-    Node["id"],
-    Map<Node["id"], Map<E["kind"], E["props"]>>
+    Node["signature"],
+    Map<Node["signature"], Map<E["kind"], E["props"]>>
   >;
 
   constructor(nodes: N[], edges: E[]) {
@@ -21,29 +24,23 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
       this.addNode(node);
     }
 
-    // adds pre-resolved edges first (definitions, imports, ...)
-    for (const edge of edges.filter((e) => e.resolved === true)) {
+    for (const edge of edges) {
       this.addEdge(edge);
-    }
-
-    // resolve edges by walking through pre-resolved edges
-    for (const edge of edges.filter((e) => e.resolved !== true)) {
-      this.addEdge(Graph.resolve(this, edge));
     }
   }
 
   /**
    * Contains all the nodes added to the graph.
    */
-  get nodes(): ReadonlyMap<Node["id"], N> {
+  get nodes(): ReadonlyMap<Node["signature"], N> {
     return this._nodes;
   }
   /**
    * The adjacency list of the graph.
    */
   get edges(): ReadonlyMap<
-    Node["id"],
-    ReadonlyMap<Node["id"], ReadonlySet<E["kind"]>>
+    Node["signature"],
+    ReadonlyMap<Node["signature"], ReadonlySet<E["kind"]>>
   > {
     return this._edges;
   }
@@ -51,8 +48,8 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Language specific metadata for each edges.
    */
   get edgeProps(): ReadonlyMap<
-    Node["id"],
-    ReadonlyMap<Node["id"], ReadonlyMap<E["kind"], E["props"]>>
+    Node["signature"],
+    ReadonlyMap<Node["signature"], ReadonlyMap<E["kind"], E["props"]>>
   > {
     return this._edgeProps;
   }
@@ -61,12 +58,12 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Adds a node to the graph.
    */
   addNode(node: N): this {
-    if (!this._nodes.has(node.id)) {
-      this._nodes.set(node.id, node);
+    if (!this._nodes.has(node.signature)) {
+      this._nodes.set(node.signature, node);
     }
 
-    if (!this._edges.has(node.id)) {
-      this._edges.set(node.id, new Map());
+    if (!this._edges.has(node.signature)) {
+      this._edges.set(node.signature, new Map());
     }
     return this;
   }
@@ -75,16 +72,16 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Removes a node from the graph.
    */
   removeNode(node: N): this {
-    this._edges.delete(node.id);
-    this._nodes.delete(node.id);
-    this._edgeProps.delete(node.id); // outgoing props
+    this._edges.delete(node.signature);
+    this._nodes.delete(node.signature);
+    this._edgeProps.delete(node.signature); // outgoing props
 
     for (const adjacentNodes of this._edges.values()) {
-      adjacentNodes.delete(node.id);
+      adjacentNodes.delete(node.signature);
     }
 
     for (const toMap of this._edgeProps.values()) {
-      toMap.delete(node.id); // incoming props
+      toMap.delete(node.signature); // incoming props
     }
 
     return this;
@@ -94,14 +91,14 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Gets the adjacent node ids set for the given node id.
    */
   adjacent(
-    id: Node["id"],
-  ): ReadonlyMap<Node["id"], ReadonlySet<E["kind"]>> | undefined {
+    id: Node["signature"],
+  ): ReadonlyMap<Node["signature"], ReadonlySet<E["kind"]>> | undefined {
     return this._edges.get(id);
   }
 
   getEdgeProperties(
-    from: Node["id"],
-    to: Node["id"],
+    from: Node["signature"],
+    to: Node["signature"],
     kind: E["kind"],
   ): E["props"] {
     return this._edgeProps.get(from)?.get(to)?.get(kind);
@@ -111,7 +108,6 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Adds an edge to the graph.
    */
   addEdge(edge: E): this {
-    this._assertResolved(edge);
     const { from, to, kind, props } = edge;
 
     if (!this._edges.has(from)) {
@@ -143,7 +139,11 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     return this;
   }
 
-  removeEdge(from: Node["id"], to: Node["id"], kind: E["kind"]): this {
+  removeEdge(
+    from: Node["signature"],
+    to: Node["signature"],
+    kind: E["kind"],
+  ): this {
     this._edges.get(from)?.get(to)?.delete(kind);
     this._edgeProps.get(from)?.get(to)?.delete(kind);
     return this;
@@ -152,7 +152,11 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   /**
    * Returns true if there is an edge from the `source` node to `target` node.
    */
-  hasEdge(from: Node["id"], to: Node["id"], kind: E["kind"]): boolean {
+  hasEdge(
+    from: Node["signature"],
+    to: Node["signature"],
+    kind: E["kind"],
+  ): boolean {
     return this._edges.get(from)?.get(to)?.has(kind) ?? false;
   }
 
@@ -162,7 +166,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     this._edgeProps.clear();
   }
 
-  serialize(): { nodes: N[]; edges: Graph.ResolvedEdge<E>[] } {
+  serialize(): { nodes: N[]; edges: E[] } {
     const nodes = Array.from(
       this._nodes.values().map((n) => ({
         ...n,
@@ -172,7 +176,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
         },
       })),
     );
-    const edges: Graph.ResolvedEdge<E>[] = [];
+    const edges: E[] = [];
 
     for (const [from, toMap] of this._edges) {
       for (const [to, kinds] of toMap) {
@@ -182,9 +186,8 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
             from,
             to,
             kind,
-            resolved: true,
             ...(props !== undefined && { props }),
-          } as Graph.ResolvedEdge<E>);
+          } as E);
         }
       }
     }
@@ -193,8 +196,8 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   }
 
   private _adjacent(
-    id: Node["id"],
-  ): Map<Node["id"], Set<E["kind"]>> | undefined {
+    id: Node["signature"],
+  ): Map<Node["signature"], Set<E["kind"]>> | undefined {
     return this._edges.get(id);
   }
 
@@ -202,8 +205,8 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Sets the properties of the given edge.
    */
   private _setEdgeProperties(
-    from: Node["id"],
-    to: Node["id"],
+    from: Node["signature"],
+    to: Node["signature"],
     kind: E["kind"],
     props: E["props"],
   ): this {
@@ -228,90 +231,33 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     return this;
   }
 
-  private _assertResolved(edge: E): asserts edge is Graph.ResolvedEdge<E> {
-    if (!edge.resolved) {
-      throw new GraphError(
-        "GRAPH_UNRESOLVED_EDGE",
-        `Unresolved edge target: ${edge.to}`,
-      );
-    }
-  }
-}
-
-namespace Graph {
-  export type ResolvedEdge<E extends Edge> = E & {
-    to: Node["id"];
-    resolved: true;
-  };
-
-  function isEdge(item: any): item is Edge {
-    return (
-      "from" in item &&
-      "to" in item &&
-      "kind" in item &&
-      "resolved" in item &&
-      typeof item.resolved === "boolean"
-    );
-  }
-
-  function parent(id: Node["id"]): Node["id"] | undefined {
+  private _parent(id: Node["signature"]): Node["signature"] | undefined {
     const i = id.lastIndexOf(SEPARATOR);
     return i > 0 ? id.slice(0, i) : undefined;
   }
 
-  /**
-   *
-   */
-  export function resolve<N extends Node = Node, E extends Edge = Edge>(
-    graph: Graph<N, E>,
-    edge: E,
-  ): ResolvedEdge<E>;
-  /**
-   *
-   */
-  export function resolve<N extends Node = Node, E extends Edge = Edge>(
-    graph: Graph<N, E>,
-    name: string,
-    from: Node["id"],
-  ): Node["id"];
-  export function resolve<N extends Node = Node, E extends Edge = Edge>(
-    graph: Graph<N, E>,
-    item: E | string,
-    from?: Node["id"],
-  ): ResolvedEdge<E> | Node["id"] {
-    if (isEdge(item)) {
-      // item is Edge
-      if (item.resolved) return item as ResolvedEdge<E>;
+  private _resolve(name: string, from: Node["signature"]): Node["signature"] {
+    // resolve id by name
+    let scope: string | undefined = from; // start from caller
 
-      return {
-        ...item,
-        to: resolve(graph, item.to, item.from),
-        resolved: true,
-      } satisfies ResolvedEdge<E>;
-    } else {
-      // resolve id by name
-      const name = item;
-      let scope = from; // start from caller
-
-      while (scope !== undefined) {
-        const adj = graph.adjacent(scope);
-        if (adj) {
-          for (const [targetId] of adj) {
-            if (targetId.endsWith(SEPARATOR + name)) {
-              return targetId;
-            }
+    while (scope !== undefined) {
+      const adj = this.adjacent(scope);
+      if (adj) {
+        for (const [targetId] of adj) {
+          if (targetId.endsWith(SEPARATOR + name)) {
+            return targetId;
           }
         }
-
-        scope = parent(scope);
       }
 
-      throw new GraphError(
-        "GRAPH_EDGE_RESOLUTION_FAILED",
-        `Failed to resolve ${item} from ${from}`,
-      );
+      scope = this._parent(scope);
     }
+
+    throw new GraphError(
+      "GRAPH_NAME_RESOLUTION_FAILED",
+      `Failed to resolve ${name} from ${from}`,
+    );
   }
 }
 
-export { Graph };
+export default Graph;

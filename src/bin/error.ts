@@ -8,4 +8,4 @@ class BinaryError extends SpineError {
   }
 }
 
-export { BinaryError };
+export default BinaryError;

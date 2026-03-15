@@ -58,4 +58,4 @@ function deepMergeArrays<T, U>(first: T[], second: U[]): (T | U | (T & U))[] {
   ];
 }
 
-export { deepMergeArrays };
+export default deepMergeArrays;

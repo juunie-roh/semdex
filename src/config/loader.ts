@@ -3,7 +3,7 @@ import { cwd } from "node:process";
 
 import type { Config } from "@/models/config";
 
-import { ConfigError } from "./error";
+import ConfigError from "./error";
 
 /**
  * Asserts that the given configuration file path is valid.

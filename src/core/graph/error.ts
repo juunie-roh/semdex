@@ -8,4 +8,4 @@ class GraphError extends SpineError {
   }
 }
 
-export { GraphError };
+export default GraphError;

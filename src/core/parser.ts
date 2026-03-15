@@ -6,9 +6,9 @@ import type { Edge, Node } from "@/models";
 import type { Config } from "@/models/config";
 import { defined } from "@/shared/defined";
 
-import { CoreError } from "./error";
-import type { Graph } from "./graph";
-import { Language } from "./language";
+import CoreError from "./error";
+import type Graph from "./graph";
+import Language from "./language";
 
 class Parser {
   private _languages: Map<string, Language>;
@@ -92,4 +92,4 @@ class Parser {
   }
 }
 
-export { Parser };
+export default Parser;

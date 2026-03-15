@@ -8,4 +8,4 @@ class QueryError extends SpineError {
   }
 }
 
-export { QueryError };
+export default QueryError;

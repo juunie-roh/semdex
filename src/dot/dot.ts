@@ -1,4 +1,4 @@
-import type { Graph } from "@/core/graph";
+import type Graph from "@/core/graph";
 
 function edgesToDOT(edges: Graph["edges"], space?: number): string[] {
   const lines: string[] = [];

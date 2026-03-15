@@ -1,4 +1,4 @@
-type SpineErrorCode =
+export type SpineErrorCode =
   // binary
   | "BIN_ERROR"
   // config
@@ -14,13 +14,13 @@ type SpineErrorCode =
   // graph
   | "GRAPH_NO_NODE"
   | "GRAPH_UNRESOLVED_EDGE"
-  | "GRAPH_EDGE_RESOLUTION_FAILED"
+  | "GRAPH_NAME_RESOLUTION_FAILED"
   | "GRAPH_UNDEFINED_INSTANCE"
   // query
   | "QUERY_SET_DUPLICATE_KEY"
   | "QUERY_GET_INVALID_KEY";
 
-class SpineError extends Error {
+export class SpineError extends Error {
   readonly code: SpineErrorCode;
 
   constructor(code: SpineErrorCode, message: string, options?: ErrorOptions) {
@@ -29,6 +29,3 @@ class SpineError extends Error {
     this.code = code;
   }
 }
-
-export { SpineError };
-export type { SpineErrorCode };

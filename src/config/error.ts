@@ -8,4 +8,4 @@ class ConfigError extends SpineError {
   }
 }
 
-export { ConfigError };
+export default ConfigError;

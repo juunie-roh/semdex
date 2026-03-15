@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { deepMergeArrays } from "./deep-merge-arrays";
+import deepMergeArrays from "./deep-merge-arrays";
 
 describe("deepMergeArrays", () => {
   it("returns second when first is falsy", () => {

@@ -2,8 +2,8 @@ import TSParser from "tree-sitter";
 
 import { Edge, Node } from "@/models";
 
-import { CoreError } from "./error";
-import type { Graph } from "./graph";
+import CoreError from "./error";
+import type Graph from "./graph";
 
 /**
  * Represents a loaded and initialized symbex language plugin.
@@ -118,4 +118,4 @@ namespace Language {
   }
 }
 
-export { Language };
+export default Language;
