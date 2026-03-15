@@ -7,6 +7,7 @@ import { program } from "commander";
 
 import { loadConfig } from "@/config";
 import { Graph, Parser } from "@/core";
+import type { NodeSignature } from "@/models";
 
 import pkg from "../../package.json";
 
@@ -28,7 +29,11 @@ program
     const parser = new Parser(config);
     const { nodes, edges } = parser.parse(file, readFileSync(file, "utf-8"));
     // add root file node once
-    nodes.push({ signature: file, kind: "module", type: "scope" });
+    nodes.push({
+      signature: file as NodeSignature,
+      kind: "module",
+      type: "scope",
+    });
 
     const graph = new Graph(nodes, edges);
 

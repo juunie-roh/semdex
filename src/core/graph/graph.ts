@@ -1,18 +1,15 @@
 import { SEPARATOR } from "@/consts";
-import type { Edge, Node } from "@/models";
+import type { Edge, Node, NodeSignature } from "@/models";
 import { defined } from "@/shared/defined";
 
 import GraphError from "./error";
 
 class Graph<N extends Node = Node, E extends Edge = Edge> {
-  private _nodes: Map<Node["signature"], N>;
-  private _edges: Map<
-    Node["signature"],
-    Map<Node["signature"], Set<E["kind"]>>
-  >;
+  private _nodes: Map<NodeSignature, N>;
+  private _edges: Map<NodeSignature, Map<NodeSignature, Set<E["kind"]>>>;
   private _edgeProps: Map<
-    Node["signature"],
-    Map<Node["signature"], Map<E["kind"], E["props"]>>
+    NodeSignature,
+    Map<NodeSignature, Map<E["kind"], E["props"]>>
   >;
 
   constructor(nodes: N[], edges: E[]) {
@@ -32,15 +29,15 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   /**
    * Contains all the nodes added to the graph.
    */
-  get nodes(): ReadonlyMap<Node["signature"], N> {
+  get nodes(): ReadonlyMap<NodeSignature, N> {
     return this._nodes;
   }
   /**
    * The adjacency list of the graph.
    */
   get edges(): ReadonlyMap<
-    Node["signature"],
-    ReadonlyMap<Node["signature"], ReadonlySet<E["kind"]>>
+    NodeSignature,
+    ReadonlyMap<NodeSignature, ReadonlySet<E["kind"]>>
   > {
     return this._edges;
   }
@@ -48,8 +45,8 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Language specific metadata for each edges.
    */
   get edgeProps(): ReadonlyMap<
-    Node["signature"],
-    ReadonlyMap<Node["signature"], ReadonlyMap<E["kind"], E["props"]>>
+    NodeSignature,
+    ReadonlyMap<NodeSignature, ReadonlyMap<E["kind"], E["props"]>>
   > {
     return this._edgeProps;
   }
@@ -91,14 +88,14 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Gets the adjacent node ids set for the given node id.
    */
   adjacent(
-    id: Node["signature"],
-  ): ReadonlyMap<Node["signature"], ReadonlySet<E["kind"]>> | undefined {
+    id: NodeSignature,
+  ): ReadonlyMap<NodeSignature, ReadonlySet<E["kind"]>> | undefined {
     return this._edges.get(id);
   }
 
   getEdgeProperties(
-    from: Node["signature"],
-    to: Node["signature"],
+    from: NodeSignature,
+    to: NodeSignature,
     kind: E["kind"],
   ): E["props"] {
     return this._edgeProps.get(from)?.get(to)?.get(kind);
@@ -139,11 +136,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     return this;
   }
 
-  removeEdge(
-    from: Node["signature"],
-    to: Node["signature"],
-    kind: E["kind"],
-  ): this {
+  removeEdge(from: NodeSignature, to: NodeSignature, kind: E["kind"]): this {
     this._edges.get(from)?.get(to)?.delete(kind);
     this._edgeProps.get(from)?.get(to)?.delete(kind);
     return this;
@@ -152,11 +145,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   /**
    * Returns true if there is an edge from the `source` node to `target` node.
    */
-  hasEdge(
-    from: Node["signature"],
-    to: Node["signature"],
-    kind: E["kind"],
-  ): boolean {
+  hasEdge(from: NodeSignature, to: NodeSignature, kind: E["kind"]): boolean {
     return this._edges.get(from)?.get(to)?.has(kind) ?? false;
   }
 
@@ -196,8 +185,8 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   }
 
   private _adjacent(
-    id: Node["signature"],
-  ): Map<Node["signature"], Set<E["kind"]>> | undefined {
+    id: NodeSignature,
+  ): Map<NodeSignature, Set<E["kind"]>> | undefined {
     return this._edges.get(id);
   }
 
@@ -205,8 +194,8 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Sets the properties of the given edge.
    */
   private _setEdgeProperties(
-    from: Node["signature"],
-    to: Node["signature"],
+    from: NodeSignature,
+    to: NodeSignature,
     kind: E["kind"],
     props: E["props"],
   ): this {
@@ -231,14 +220,14 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     return this;
   }
 
-  private _parent(id: Node["signature"]): Node["signature"] | undefined {
+  private _parent(id: NodeSignature): NodeSignature | undefined {
     const i = id.lastIndexOf(SEPARATOR);
-    return i > 0 ? id.slice(0, i) : undefined;
+    return i > 0 ? (id.slice(0, i) as NodeSignature) : undefined;
   }
 
-  private _resolve(name: string, from: Node["signature"]): Node["signature"] {
+  private _resolve(name: string, from: NodeSignature): NodeSignature {
     // resolve id by name
-    let scope: string | undefined = from; // start from caller
+    let scope: NodeSignature | undefined = from; // start from caller
 
     while (scope !== undefined) {
       const adj = this.adjacent(scope);

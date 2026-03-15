@@ -1,6 +1,15 @@
 import type TSParser from "tree-sitter";
 
 /**
+ * @template T A type to make a brand on.
+ * @template K A name of brand.
+ * @example
+ * type NodeId = Branded<string, "NodeId"> // NodeId = string & { readonly __brand: "NodeId" }
+ */
+export type Branded<T, K extends string> = T & { readonly __brand: K };
+export type NodeSignature = Branded<string, "NODE_SIGNATURE">;
+
+/**
  * @template K - String union of valid `kind` values for this node. Defaults to
  * `string` for untyped use; narrow it to a literal union to get type-safe `kind` access.
  * @example
@@ -11,7 +20,7 @@ export interface Node<K extends string = string> {
   /**
    * Unique human-readable signature identifying the node.
    */
-  signature: string;
+  signature: NodeSignature;
   /**
    * Encoded signature.
    */
@@ -43,11 +52,11 @@ export interface Edge<K extends string = string> {
   /**
    * ID of the source node where the relationship originates.
    */
-  from: Node["signature"];
+  from: NodeSignature;
   /**
-   * ID of the target node where the relationship terminates.
+   * A name or ID of the target node where the relationship terminates.
    */
-  to: string;
+  to: NodeSignature;
   /**
    * Kind of relationship this edge represents.
    */

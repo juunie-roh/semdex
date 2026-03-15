@@ -1,7 +1,7 @@
 import type { createCapture, createConvert } from "@/utils";
 
 import type { SingleCaptureResult } from "./capture";
-import type { Edge, Node, QueryConfig } from "./global";
+import type { Edge, Node, NodeSignature, QueryConfig } from "./global";
 
 type ConvertResult<N extends Node, E extends Edge> = {
   nodes: N[];
@@ -20,7 +20,7 @@ type ConvertHandler<
   E extends Edge,
 > = (
   captures: SingleCaptureResult<T>[],
-  parentId: string,
+  parentId: NodeSignature,
   context: ConvertContext<Q, N, E>,
 ) => ConvertResult<N, E>;
 

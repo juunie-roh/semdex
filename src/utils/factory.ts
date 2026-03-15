@@ -8,16 +8,17 @@ import type {
   Edge,
   FullCaptureResult,
   Node,
+  NodeSignature,
   QueryConfig,
   SingleCaptureResult,
 } from "@/models";
 import type { QueryMap } from "@/query";
 
 export function createSignature(
-  parentID: string,
+  parentID: NodeSignature,
   name: string,
-): `${string}${typeof SEPARATOR}${string}` {
-  return `${parentID}${SEPARATOR}${name}`;
+): NodeSignature {
+  return `${parentID}${SEPARATOR}${name}` as NodeSignature;
 }
 
 export function createConvertResult<
@@ -116,16 +117,16 @@ export function createConvert<
 ) {
   function convert(
     captures: FullCaptureResult<Q>,
-    parentId: string,
+    parentId: NodeSignature,
   ): ConvertResult<N, E>;
   function convert<K extends keyof Q>(
     captures: SingleCaptureResult<Q[K]>[],
-    parentId: string,
+    parentId: NodeSignature,
     key: K,
   ): ConvertResult<N, E>;
   function convert<K extends keyof Q>(
     captures: FullCaptureResult<Q> | SingleCaptureResult<Q[K]>[],
-    parentId: string,
+    parentId: NodeSignature,
     key?: K,
   ): ConvertResult<N, E> {
     const context = { capture, convert };
