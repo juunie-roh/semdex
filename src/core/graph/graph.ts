@@ -175,7 +175,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     const nodes = Array.from(
       this._nodes.values().map((n) => ({
         ...n,
-        name: this._registry.decode(n.id).pop()!,
+        path: this._registry.decode(n.id),
         range: {
           byte: `${n.range?.startIndex}:${n.range?.endIndex}`,
           line: `L${n.range?.startPosition.row}:L${n.range?.endPosition.row}`,
@@ -190,9 +190,9 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
           const props = this._edgeProps.get(from)?.get(to)?.get(kind);
           edges.push({
             from,
-            fromName: this._registry.decode(from).pop()!,
+            fromPath: this._registry.decode(from),
             to,
-            toName: this._registry.decode(to).pop()!,
+            toPath: this._registry.decode(to),
             kind,
             ...(props !== undefined && { props }),
           });

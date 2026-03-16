@@ -7,6 +7,7 @@ import { program } from "commander";
 
 import { loadConfig } from "@/config";
 import { Graph, Parser } from "@/core";
+import { printDotGraph } from "@/dot";
 import type { NodePath } from "@/models";
 
 import pkg from "../../package.json";
@@ -49,7 +50,7 @@ program
     }
 
     if (options.dot) {
-      console.log(parser.toDot(file, graph));
+      console.log(printDotGraph(graph.serialize(), { indent: 2 }));
     }
 
     if (others) {
