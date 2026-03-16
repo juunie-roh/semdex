@@ -7,7 +7,9 @@ import type TSParser from "tree-sitter";
  * type NodeId = Branded<string, "NodeId"> // NodeId = string & { readonly __brand: "NodeId" }
  */
 export type Branded<T, K extends string> = T & { readonly __brand: K };
-export type NodeSignature = Branded<string, "NODE_SIGNATURE">;
+export type NodeId = Branded<string, "NODE_ID">;
+export type NodePath = Branded<string[], "NODE_PATH">;
+export type NodePathString = Branded<string, "NODE_PATH_STRING">;
 
 /**
  * @template K - String union of valid `kind` values for this node. Defaults to
@@ -20,15 +22,14 @@ export interface Node<K extends string = string> {
   /**
    * Unique human-readable signature identifying the node.
    */
-  signature: NodeSignature;
+  path: NodePath;
   /**
-   * Encoded signature.
-   */
-  // id?: any;
-  /**
-   * Kind of this node.
+   * Kind of the node.
    */
   kind: K;
+  /**
+   * Type of the node.
+   */
   type: "scope" | "anonymous" | "binding";
   /**
    * A range of positions in a multi-line text document, specified both in terms of byte offsets and row/column positions.
@@ -52,11 +53,11 @@ export interface Edge<K extends string = string> {
   /**
    * ID of the source node where the relationship originates.
    */
-  from: NodeSignature;
+  from: NodePath;
   /**
    * A name or ID of the target node where the relationship terminates.
    */
-  to: NodeSignature;
+  to: NodePath;
   /**
    * Kind of relationship this edge represents.
    */

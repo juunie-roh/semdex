@@ -1,6 +1,5 @@
 import type TSParser from "tree-sitter";
 
-import { SEPARATOR } from "@/consts";
 import type {
   CaptureConfig,
   ConvertConfig,
@@ -8,17 +7,16 @@ import type {
   Edge,
   FullCaptureResult,
   Node,
-  NodeSignature,
+  NodePath,
   QueryConfig,
   SingleCaptureResult,
 } from "@/models";
 import type { QueryMap } from "@/query";
 
-export function createSignature(
-  parentID: NodeSignature,
-  name: string,
-): NodeSignature {
-  return `${parentID}${SEPARATOR}${name}` as NodeSignature;
+export function createChildPath(parent: NodePath, name: string): NodePath {
+  const path = [...parent] as NodePath;
+  path.push(name);
+  return path;
 }
 
 export function createConvertResult<
@@ -117,16 +115,16 @@ export function createConvert<
 ) {
   function convert(
     captures: FullCaptureResult<Q>,
-    parentId: NodeSignature,
+    parent: NodePath,
   ): ConvertResult<N, E>;
   function convert<K extends keyof Q>(
     captures: SingleCaptureResult<Q[K]>[],
-    parentId: NodeSignature,
+    parent: NodePath,
     key: K,
   ): ConvertResult<N, E>;
   function convert<K extends keyof Q>(
     captures: FullCaptureResult<Q> | SingleCaptureResult<Q[K]>[],
-    parentId: NodeSignature,
+    parent: NodePath,
     key?: K,
   ): ConvertResult<N, E> {
     const context = { capture, convert };
@@ -136,7 +134,7 @@ export function createConvert<
       const result = createConvertResult<N, E>();
 
       for (const k of Object.keys(full) as (keyof Q)[]) {
-        const r = config[k](full[k], parentId, context);
+        const r = config[k](full[k], parent, context);
         result.push(r);
       }
       return result;
@@ -144,7 +142,7 @@ export function createConvert<
 
     return config[key](
       captures as SingleCaptureResult<Q[K]>[],
-      parentId,
+      parent,
       context,
     );
   }

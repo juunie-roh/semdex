@@ -1,17 +1,17 @@
 import deepMergeArrays from "./deep-merge-arrays";
 import {
   createCapture,
+  createChildPath,
   createConvert,
   createConvertResult,
-  createSignature,
 } from "./factory";
 import { getRange } from "./node";
 
 export {
   createCapture,
+  createChildPath,
   createConvert,
   createConvertResult,
-  createSignature,
   deepMergeArrays,
   getRange,
 };

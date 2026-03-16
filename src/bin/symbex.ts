@@ -7,7 +7,7 @@ import { program } from "commander";
 
 import { loadConfig } from "@/config";
 import { Graph, Parser } from "@/core";
-import type { NodeSignature } from "@/models";
+import type { NodePath } from "@/models";
 
 import pkg from "../../package.json";
 
@@ -30,7 +30,7 @@ program
     const { nodes, edges } = parser.parse(file, readFileSync(file, "utf-8"));
     // add root file node once
     nodes.push({
-      signature: file as NodeSignature,
+      path: [file] as NodePath,
       kind: "module",
       type: "scope",
     });

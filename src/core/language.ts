@@ -1,6 +1,6 @@
 import TSParser from "tree-sitter";
 
-import { Edge, Node } from "@/models";
+import type { Edge, Node, NodePath } from "@/models";
 
 import CoreError from "./error";
 import type Graph from "./graph";
@@ -56,7 +56,7 @@ class Language {
     node: TSParser.SyntaxNode,
   ): { edges: Edge[]; nodes: Node[] } {
     const captures = this._module.capture(node);
-    return this._module.convert(captures, filePath);
+    return this._module.convert(captures, [filePath] as NodePath);
   }
 
   toDot<N extends Node = Node, E extends Edge = Edge>(graph: Graph<N, E>) {

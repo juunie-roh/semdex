@@ -1,18 +1,23 @@
-import { SEPARATOR } from "@/consts";
-import type { Edge, Node, NodeSignature } from "@/models";
+import type { Edge, Node, NodeId } from "@/models";
 import { defined } from "@/shared/defined";
 
 import GraphError from "./error";
+import { HashRegistry } from "./hash-registry";
+
+type GraphNode<N extends Node = Node> = Omit<N, "path"> & { id: NodeId };
+type GraphEdge<E extends Edge = Edge> = E & { from: NodeId; to: NodeId };
 
 class Graph<N extends Node = Node, E extends Edge = Edge> {
-  private _nodes: Map<NodeSignature, N>;
-  private _edges: Map<NodeSignature, Map<NodeSignature, Set<E["kind"]>>>;
+  private _registry: HashRegistry;
+  private _nodes: Map<NodeId, GraphNode<N>>;
+  private _edges: Map<NodeId, Map<NodeId, Set<GraphEdge<E>["kind"]>>>;
   private _edgeProps: Map<
-    NodeSignature,
-    Map<NodeSignature, Map<E["kind"], E["props"]>>
+    NodeId,
+    Map<NodeId, Map<GraphEdge<E>["kind"], GraphEdge<E>["props"]>>
   >;
 
   constructor(nodes: N[], edges: E[]) {
+    this._registry = new HashRegistry();
     this._nodes = new Map();
     this._edges = new Map();
     this._edgeProps = new Map();
@@ -29,15 +34,15 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   /**
    * Contains all the nodes added to the graph.
    */
-  get nodes(): ReadonlyMap<NodeSignature, N> {
+  get nodes(): ReadonlyMap<NodeId, GraphNode<N>> {
     return this._nodes;
   }
   /**
    * The adjacency list of the graph.
    */
   get edges(): ReadonlyMap<
-    NodeSignature,
-    ReadonlyMap<NodeSignature, ReadonlySet<E["kind"]>>
+    NodeId,
+    ReadonlyMap<NodeId, ReadonlySet<GraphEdge<E>["kind"]>>
   > {
     return this._edges;
   }
@@ -45,8 +50,11 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Language specific metadata for each edges.
    */
   get edgeProps(): ReadonlyMap<
-    NodeSignature,
-    ReadonlyMap<NodeSignature, ReadonlyMap<E["kind"], E["props"]>>
+    NodeId,
+    ReadonlyMap<
+      NodeId,
+      ReadonlyMap<GraphEdge<E>["kind"], GraphEdge<E>["props"]>
+    >
   > {
     return this._edgeProps;
   }
@@ -55,13 +63,18 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Adds a node to the graph.
    */
   addNode(node: N): this {
-    if (!this._nodes.has(node.signature)) {
-      this._nodes.set(node.signature, node);
+    const id = this._registry.encode(node.path);
+    if (!this._nodes.has(id)) {
+      this._nodes.set(id, {
+        ...node,
+        id,
+      });
     }
 
-    if (!this._edges.has(node.signature)) {
-      this._edges.set(node.signature, new Map());
+    if (!this._edges.has(id)) {
+      this._edges.set(id, new Map());
     }
+
     return this;
   }
 
@@ -69,16 +82,17 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Removes a node from the graph.
    */
   removeNode(node: N): this {
-    this._edges.delete(node.signature);
-    this._nodes.delete(node.signature);
-    this._edgeProps.delete(node.signature); // outgoing props
+    const id = this._registry.encode(node.path);
+    this._edges.delete(id);
+    this._nodes.delete(id);
+    this._edgeProps.delete(id); // outgoing props
 
     for (const adjacentNodes of this._edges.values()) {
-      adjacentNodes.delete(node.signature);
+      adjacentNodes.delete(id);
     }
 
     for (const toMap of this._edgeProps.values()) {
-      toMap.delete(node.signature); // incoming props
+      toMap.delete(id); // incoming props
     }
 
     return this;
@@ -88,16 +102,16 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Gets the adjacent node ids set for the given node id.
    */
   adjacent(
-    id: NodeSignature,
-  ): ReadonlyMap<NodeSignature, ReadonlySet<E["kind"]>> | undefined {
+    id: NodeId,
+  ): ReadonlyMap<NodeId, ReadonlySet<GraphEdge<E>["kind"]>> | undefined {
     return this._edges.get(id);
   }
 
   getEdgeProperties(
-    from: NodeSignature,
-    to: NodeSignature,
-    kind: E["kind"],
-  ): E["props"] {
+    from: NodeId,
+    to: NodeId,
+    kind: GraphEdge<E>["kind"],
+  ): GraphEdge<E>["props"] {
     return this._edgeProps.get(from)?.get(to)?.get(kind);
   }
 
@@ -106,37 +120,39 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    */
   addEdge(edge: E): this {
     const { from, to, kind, props } = edge;
+    const fromId = this._registry.encode(from);
+    const toId = this._registry.encode(to);
 
-    if (!this._edges.has(from)) {
+    if (!this._edges.has(fromId)) {
       throw new GraphError(
         "GRAPH_NO_NODE",
-        `There is no node with id: ${from}`,
+        `There is no node with id: ${fromId}`,
       );
     }
 
-    const adjacentNodes = this._adjacent(from);
+    const adjacentNodes = this._adjacent(fromId);
     defined(
       adjacentNodes,
       new GraphError(
         "GRAPH_UNDEFINED_INSTANCE",
-        `No adjacency map found for node: ${from}`,
+        `No adjacency map found for node: ${fromId}`,
       ),
     );
 
-    if (!adjacentNodes.has(to)) {
-      adjacentNodes.set(to, new Set());
+    if (!adjacentNodes.has(toId)) {
+      adjacentNodes.set(toId, new Set());
     }
 
-    adjacentNodes.get(to)!.add(kind);
+    adjacentNodes.get(toId)!.add(kind);
 
     if (props !== undefined) {
-      this._setEdgeProperties(from, to, kind, props);
+      this._setEdgeProperties(fromId, toId, kind, props);
     }
 
     return this;
   }
 
-  removeEdge(from: NodeSignature, to: NodeSignature, kind: E["kind"]): this {
+  removeEdge(from: NodeId, to: NodeId, kind: GraphEdge<E>["kind"]): this {
     this._edges.get(from)?.get(to)?.delete(kind);
     this._edgeProps.get(from)?.get(to)?.delete(kind);
     return this;
@@ -145,7 +161,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   /**
    * Returns true if there is an edge from the `source` node to `target` node.
    */
-  hasEdge(from: NodeSignature, to: NodeSignature, kind: E["kind"]): boolean {
+  hasEdge(from: NodeId, to: NodeId, kind: GraphEdge<E>["kind"]): boolean {
     return this._edges.get(from)?.get(to)?.has(kind) ?? false;
   }
 
@@ -155,17 +171,18 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     this._edgeProps.clear();
   }
 
-  serialize(): { nodes: N[]; edges: E[] } {
+  serialize() {
     const nodes = Array.from(
       this._nodes.values().map((n) => ({
         ...n,
+        name: this._registry.decode(n.id).pop()!,
         range: {
           byte: `${n.range?.startIndex}:${n.range?.endIndex}`,
           line: `L${n.range?.startPosition.row}:L${n.range?.endPosition.row}`,
         },
       })),
     );
-    const edges: E[] = [];
+    const edges = [];
 
     for (const [from, toMap] of this._edges) {
       for (const [to, kinds] of toMap) {
@@ -173,10 +190,12 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
           const props = this._edgeProps.get(from)?.get(to)?.get(kind);
           edges.push({
             from,
+            fromName: this._registry.decode(from).pop()!,
             to,
+            toName: this._registry.decode(to).pop()!,
             kind,
             ...(props !== undefined && { props }),
-          } as E);
+          });
         }
       }
     }
@@ -185,8 +204,8 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   }
 
   private _adjacent(
-    id: NodeSignature,
-  ): Map<NodeSignature, Set<E["kind"]>> | undefined {
+    id: NodeId,
+  ): Map<NodeId, Set<GraphEdge<E>["kind"]>> | undefined {
     return this._edges.get(id);
   }
 
@@ -194,10 +213,10 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
    * Sets the properties of the given edge.
    */
   private _setEdgeProperties(
-    from: NodeSignature,
-    to: NodeSignature,
-    kind: E["kind"],
-    props: E["props"],
+    from: NodeId,
+    to: NodeId,
+    kind: GraphEdge<E>["kind"],
+    props: GraphEdge<E>["props"],
   ): this {
     if (!this._edgeProps.has(from)) {
       this._edgeProps.set(from, new Map());
@@ -220,33 +239,33 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     return this;
   }
 
-  private _parent(id: NodeSignature): NodeSignature | undefined {
-    const i = id.lastIndexOf(SEPARATOR);
-    return i > 0 ? (id.slice(0, i) as NodeSignature) : undefined;
-  }
+  // private _parent(id: NodeId): NodeId | undefined {
+  //   const i = this._registry.decode(id);
+  //   return i > 0 ? (id.slice(0, i) as any) : undefined;
+  // }
 
-  private _resolve(name: string, from: NodeSignature): NodeSignature {
-    // resolve id by name
-    let scope: NodeSignature | undefined = from; // start from caller
+  // private _resolve(name: string, from: NodeId): any {
+  //   // resolve id by name
+  //   let scope: NodeId | undefined = from; // start from caller
 
-    while (scope !== undefined) {
-      const adj = this.adjacent(scope);
-      if (adj) {
-        for (const [targetId] of adj) {
-          if (targetId.endsWith(SEPARATOR + name)) {
-            return targetId;
-          }
-        }
-      }
+  //   while (scope !== undefined) {
+  //     const adj = this.adjacent(scope);
+  //     if (adj) {
+  //       for (const [targetId] of adj) {
+  //         if (targetId.endsWith(SEPARATOR + name)) {
+  //           return targetId;
+  //         }
+  //       }
+  //     }
 
-      scope = this._parent(scope);
-    }
+  //     scope = this._parent(scope);
+  //   }
 
-    throw new GraphError(
-      "GRAPH_NAME_RESOLUTION_FAILED",
-      `Failed to resolve ${name} from ${from}`,
-    );
-  }
+  //   throw new GraphError(
+  //     "GRAPH_NAME_RESOLUTION_FAILED",
+  //     `Failed to resolve ${name} from ${from}`,
+  //   );
+  // }
 }
 
 export default Graph;
