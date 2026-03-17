@@ -1,6 +1,3 @@
-import { createConvert } from "symbex/utils";
-
-import { capture } from "./capture";
 import abstractClassHandler from "./handlers/abstract-class";
 import abstractMethodHandler from "./handlers/abstract-method";
 import classHandler from "./handlers/class";
@@ -10,9 +7,9 @@ import memberHandler from "./handlers/member";
 import methodHandler from "./handlers/method";
 import patternHandler from "./handlers/pattern";
 import variableHandler from "./handlers/variable";
-import type { ConvertConfig, Edge, Node, QueryConfig } from "./types";
+import type { ConvertConfig } from "./types";
 
-const config: ConvertConfig = {
+export const convertConfig = {
   abstract_class: abstractClassHandler,
   abstract_method: abstractMethodHandler,
   class: classHandler,
@@ -22,8 +19,4 @@ const config: ConvertConfig = {
   method: methodHandler,
   pattern: patternHandler,
   variable: variableHandler,
-};
-
-const convert = createConvert<QueryConfig, Node, Edge>(capture, config);
-
-export { convert };
+} as const satisfies ConvertConfig;

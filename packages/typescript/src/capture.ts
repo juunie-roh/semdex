@@ -1,10 +1,9 @@
-import { createCapture } from "symbex/utils";
 import type TSParser from "tree-sitter";
 
 import { bypass, query } from "./query";
-import type { QueryConfig } from "./types";
+import type { CaptureConfig } from "./types";
 
-const capture = createCapture<QueryConfig>(query, {
+export const captureConfig = {
   class: {
     bypass(node) {
       const matches: TSParser.QueryMatch[] = [];
@@ -45,6 +44,4 @@ const capture = createCapture<QueryConfig>(query, {
       return matches;
     },
   },
-});
-
-export { capture };
+} as const satisfies CaptureConfig;

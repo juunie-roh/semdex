@@ -1,83 +1,34 @@
 import type * as symbex from "symbex";
 
-export type QueryConfig = {
-  abstract_class: {
-    required: "node" | "name" | "body";
-    optional:
-      | "heritage"
-      | "extends"
-      | "extends_body"
-      | "implements"
-      | "type_args"
-      | "type_params";
-  };
-  abstract_method: {
-    required: "node" | "name" | "params" | "return_type";
-    optional: "modifier" | "type_params";
-  };
-  class: {
-    required: "node" | "name" | "body";
-    optional:
-      | "heritage"
-      | "extends"
-      | "type_args"
-      | "extends_body"
-      | "implements"
-      | "type_params";
-  };
-  function: {
-    required: "node" | "name" | "params" | "body";
-    optional: "is_async" | "type_params" | "return_type";
-  };
-  import: {
-    required: "node" | "source";
-    optional: "alias" | "name" | "is_type";
-  };
-  member: {
-    required: "node" | "name";
-    optional: "modifier" | "is_static" | "type";
-  };
-  method: {
-    required: "node" | "name" | "body" | "params";
-    optional:
-      | "modifier"
-      | "is_static"
-      | "is_async"
-      | "type_params"
-      | "return_type";
-  };
-  pattern: {
-    required: "node";
-    optional: "pattern" | "name" | "default" | "key";
-  };
-  // type: {
-  //   required: string;
-  //   optional: string;
-  // };
-  variable: {
-    required: "node" | "pattern" | "kind";
-    optional: "name" | "type";
-  };
-};
+import { queryConfig } from "./query";
 
-export type BypassQueryConfig = "export_class" | "export_function";
+export type QueryConfig = typeof queryConfig;
 
-// TODO: add other declaration kinds
-export type NodeKind = keyof QueryConfig | "module" | "type";
+export const nodeKind = [
+  ...(Object.keys(queryConfig) as (keyof typeof queryConfig)[]),
+  "module",
+  "type",
+] as const;
+
+export type NodeKind = (typeof nodeKind)[number];
 
 export type Node = symbex.Node<NodeKind>;
 
-// TODO: add other relationship kinds
-export type EdgeKind =
-  | "constrained"
-  | "defines"
-  | "inherits"
-  | "implements"
-  | "imports";
+export const edgeKind = [
+  "constrained",
+  "defines",
+  "inherits",
+  "implements",
+  "imports",
+] as const;
+
+export type EdgeKind = (typeof edgeKind)[number];
 
 export type Edge = symbex.Edge<EdgeKind>;
 
 export type Graph = symbex.Graph<Node, Edge>;
+
+export type CaptureConfig = symbex.CaptureConfig<QueryConfig>;
 
 export type SingleCaptureResult<K extends keyof QueryConfig> =
   symbex.SingleCaptureResult<QueryConfig[K]>;
@@ -95,4 +46,10 @@ export type ConvertHandler<K extends keyof QueryConfig> = symbex.ConvertHandler<
   QueryConfig[K],
   Node,
   Edge
+>;
+
+export type PluginDescriptor = symbex.PluginDescriptor<
+  QueryConfig,
+  typeof nodeKind,
+  typeof edgeKind
 >;

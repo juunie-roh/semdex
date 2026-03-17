@@ -1,3 +1,4 @@
+import type { QueryConfig } from "symbex";
 import { QueryMap } from "symbex/query";
 import type TSParser from "tree-sitter";
 import TypeScript from "tree-sitter-typescript";
@@ -14,11 +15,72 @@ import methodQueryString from "@/queries/method.scm";
 import patternQueryString from "@/queries/pattern.scm";
 import variableQueryString from "@/queries/variable.scm";
 
-import type { BypassQueryConfig, QueryConfig } from "./types";
-
 export const language = TypeScript.typescript as TSParser.Language;
 
-export const query = new QueryMap<keyof QueryConfig>(language)
+export const queryConfig = {
+  abstract_class: {
+    required: ["node", "name", "body"],
+    optional: [
+      "heritage",
+      "extends",
+      "extends_body",
+      "implements",
+      "type_args",
+      "type_params",
+    ],
+  },
+  abstract_method: {
+    required: ["node", "name", "params", "return_type"],
+    optional: ["modifier", "type_params"],
+  },
+  class: {
+    required: ["node", "name", "body"],
+    optional: [
+      "heritage",
+      "extends",
+      "type_args",
+      "extends_body",
+      "implements",
+      "type_params",
+    ],
+  },
+  function: {
+    required: ["node", "name", "params", "body"],
+    optional: ["is_async", "type_params", "return_type"],
+  },
+  import: {
+    required: ["node", "source"],
+    optional: ["alias", "name", "is_type"],
+  },
+  member: {
+    required: ["node", "name"],
+    optional: ["modifier", "is_static", "type"],
+  },
+  method: {
+    required: ["node", "name", "body", "params"],
+    optional: [
+      "modifier",
+      "is_static",
+      "is_async",
+      "type_params",
+      "return_type",
+    ],
+  },
+  pattern: {
+    required: ["node"],
+    optional: ["pattern", "name", "default", "key"],
+  },
+  // type: {
+  //   required: string,
+  //   optional: string,
+  // },
+  variable: {
+    required: ["node", "pattern", "kind"],
+    optional: ["name", "type"],
+  },
+} as const satisfies QueryConfig;
+
+export const query = new QueryMap<keyof typeof queryConfig>(language)
   .set("abstract_class", abstractClassQueryString)
   .set("abstract_method", abstractMethodQueryString)
   .set("class", classQueryString)
@@ -29,6 +91,8 @@ export const query = new QueryMap<keyof QueryConfig>(language)
   .set("pattern", patternQueryString)
   .set("variable", variableQueryString);
 
-export const bypass = new QueryMap<BypassQueryConfig>(language)
+type BypassQueryKey = "export_class" | "export_function";
+
+export const bypass = new QueryMap<BypassQueryKey>(language)
   .set("export_class", exportClassBypassString)
   .set("export_function", exportFunctionBypassString);
