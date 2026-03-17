@@ -183,17 +183,15 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     return this._registry.decode(id).length - 1;
   }
 
-  destroy() {
-    this._nodes.clear();
-    this._edges.clear();
-    this._edgeProps.clear();
+  path(id: NodeId): NodePath {
+    return this._registry.decode(id);
   }
 
   serialize() {
     const nodes = Array.from(
       this._nodes.values().map((n) => ({
         ...n,
-        path: this._registry.decode(n.id),
+        path: this.path(n.id),
         range: {
           byte: `${n.range?.startIndex}:${n.range?.endIndex}`,
           line: `L${n.range?.startPosition.row}:L${n.range?.endPosition.row}`,
@@ -219,6 +217,12 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     }
 
     return { nodes, edges };
+  }
+
+  destroy() {
+    this._nodes.clear();
+    this._edges.clear();
+    this._edgeProps.clear();
   }
 
   private _adjacent(
@@ -255,35 +259,6 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
 
     fromMap.get(to)!.set(kind, props);
     return this;
-  }
-
-  // TODO: later, resolve all symbol references starting from the node.
-  private _resolve(symbol: string, from: NodeId): NodeId {
-    // resolve id by symbol
-    let scope: NodeId | undefined = from;
-    // bread-first-search with adjacent nodes
-    while (scope !== undefined) {
-      const adj = this.adjacent(scope);
-      if (adj) {
-        for (const [id] of adj) {
-          const path = this._registry.decode(id);
-          // get identifier (last element of path array)
-          const identifier = path[path.length - 1];
-          if (identifier === symbol) {
-            return id;
-          }
-        }
-      }
-      // continue search on parent
-      scope = this.parent(scope);
-    }
-
-    // TODO: Global resolution
-
-    throw new GraphError(
-      "GRAPH_NAME_RESOLUTION_FAILED",
-      `Failed to resolve ${symbol} from ${from}`,
-    );
   }
 }
 

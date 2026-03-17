@@ -1,24 +1,21 @@
-import type { Edge, Node, NodeId } from "@/models";
+import type { NodeId, NodePath } from "@/models";
 
 import type Graph from "./graph";
 
 /**
- * A lightweight mutable cursor instance.
+ * A lightweight immutable cursor instance.
  */
-class GraphCursor<N extends Node = Node, E extends Edge = Edge> {
-  private readonly _graph: Graph<N, E>;
+class GraphCursor {
+  private readonly _graph: Graph;
   private _id: NodeId;
 
-  constructor(graph: Graph<N, E>, id: NodeId) {
+  constructor(graph: Graph, id: NodeId) {
     this._graph = graph;
     this._id = id;
   }
 
   // IDE sync entry point
-  static atPosition<N extends Node = Node, E extends Edge = Edge>(
-    graph: Graph<N, E>,
-    offset: number,
-  ): GraphCursor<N, E> | undefined {
+  static atPosition(graph: Graph, offset: number): GraphCursor | undefined {
     let deepestId: NodeId | undefined;
     let deepestDepth = -1;
 
@@ -42,27 +39,65 @@ class GraphCursor<N extends Node = Node, E extends Edge = Edge> {
     return this._graph.nodes.get(this._id);
   }
 
+  get path(): NodePath {
+    return this._graph.path(this._id);
+  }
+
   get depth(): number {
     return this._graph.depth(this._id);
   }
 
-  get parent(): ReturnType<Graph["nodes"]["get"]> {
+  parent(): GraphCursor | undefined {
     const parentId = this._graph.parent(this._id);
-    return parentId ? this._graph.nodes.get(parentId) : undefined;
+    return parentId ? new GraphCursor(this._graph, parentId) : undefined;
   }
 
-  get children(): ReturnType<Graph["adjacent"]> {
-    return this._graph.adjacent(this._id);
+  children(edgeKind?: string): GraphCursor[] {
+    const cursors: GraphCursor[] = [];
+
+    this._graph.adjacent(this._id)?.forEach((kinds, id) => {
+      if (edgeKind && !kinds.has(edgeKind)) return;
+      cursors.push(new GraphCursor(this._graph, id));
+    });
+
+    return cursors;
   }
 
-  move(to: NodeId): this {
-    this._id = to;
-    return this;
+  nearest(
+    predicate: (cursor: GraphCursor) => boolean,
+  ): GraphCursor | undefined {
+    let c: GraphCursor | undefined = this;
+
+    while (c) {
+      if (predicate(c)) return c;
+      c = c.parent();
+    }
+
+    return undefined;
   }
 
-  fork(): GraphCursor<N, E> {
-    return new GraphCursor(this._graph, this._id);
+  resolve(symbol: string): GraphCursor | undefined {
+    const scope = this.nearest((c) =>
+      c.children().some((child) => {
+        const path = child.path;
+        return path[path.length - 1] === symbol;
+      }),
+    );
+    // scope is the parent — you probably want the child
+    return scope?.children().find((child) => {
+      const path = child.path;
+      return path[path.length - 1] === symbol;
+    });
   }
+
+  // move(to: NodeId): this {
+  //   this._id = to;
+  //   return this;
+  // }
+
+  // fork(): GraphCursor {
+  //   return new GraphCursor(this._graph, this._id);
+  // }
 }
 
 export default GraphCursor;
