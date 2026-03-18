@@ -56,7 +56,9 @@ function assertLanguage(
 
 const queryCommand = createCommand("query")
   .helpGroup(group.command.dev)
-  .description("Test a tree-sitter query against a single file. **Note**")
+  .description(
+    "Run a tree-sitter query against a source file with depth-gated matching. Requires the grammar package to be installed locally.",
+  )
   .addArgument(fileArg)
   .addOption(encodingOption)
   .requiredOption(
