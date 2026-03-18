@@ -24,3 +24,8 @@ export const encodingOption = createOption(
     "hex",
   ])
   .default("utf-8");
+
+export const verboseOption = createOption(
+  "--verbose",
+  "Print stack traces on error",
+).default(false);

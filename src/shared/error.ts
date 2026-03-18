@@ -1,7 +1,7 @@
 export type SymbexErrorCode =
   // binary
-  | "BIN_ERROR"
   | "BIN_MODULE_NOT_FOUND"
+  | "BIN_INVALID_OPTION"
   // config
   | "CONFIG_INVALID_PATH"
   | "CONFIG_INVALID_SCHEMA"

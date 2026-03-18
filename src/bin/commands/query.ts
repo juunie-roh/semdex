@@ -4,6 +4,7 @@ import { createCommand } from "@commander-js/extra-typings";
 import TSParser from "tree-sitter";
 
 import { fileArg } from "../args";
+import BinaryError from "../error";
 import { group } from "../groups";
 import { encodingOption } from "../options";
 
@@ -82,11 +83,12 @@ const queryCommand = createCommand("query")
     try {
       mod = require(options.grammar);
     } catch (e: any) {
-      queryCommand.error(
+      throw new BinaryError(
+        "BIN_MODULE_NOT_FOUND",
         e.code === "MODULE_NOT_FOUND"
           ? `Module "${options.grammar}" not found`
           : `Module "${options.grammar}" failed to load: ${e.message}`,
-        { code: e.code },
+        { cause: e },
       );
     }
 
@@ -100,8 +102,9 @@ const queryCommand = createCommand("query")
     const tree = parser.parse(source);
 
     if (!!options.query === !!options.queryString) {
-      queryCommand.error(
-        `[ERROR] Exactly one of --query or --query-string must be specified`,
+      throw new BinaryError(
+        "BIN_INVALID_OPTION",
+        "Exactly one of --query or --query-string must be specified",
       );
     }
 

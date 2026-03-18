@@ -13,7 +13,7 @@ describe("defined — boolean overload", () => {
   });
 
   it("throws the provided SpineError for false", () => {
-    const error = new SymbexError("BIN_ERROR", "test");
+    const error = new SymbexError("BIN_INVALID_OPTION", "test");
     expect(() => defined(false, error)).toThrow(error);
   });
 

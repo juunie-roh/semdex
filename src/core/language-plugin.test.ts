@@ -130,11 +130,11 @@ describe("LanguagePlugin.load()", () => {
       }
     });
 
-    it("throws when 'query' is not a QueryMap instance", () => {
+    it("throws when 'query' is undefined", () => {
       spyLoad({
         default: {
           language: validLangShape,
-          query: {},
+          query: null,
           captureConfig: {},
           convertConfig: {},
         },

@@ -9,12 +9,13 @@ import { loadConfig } from "@/config";
 import { Graph, Parser } from "@/core";
 import { printDotGraph } from "@/dot";
 import type { NodePath } from "@/models";
+import { SymbexError } from "@/shared/error";
 
 import pkg from "../../package.json";
 import { fileArg, othersArg } from "./args";
 import queryCommand from "./commands/query";
 import { group } from "./groups";
-import { configOption, encodingOption } from "./options";
+import { configOption, encodingOption, verboseOption } from "./options";
 
 const program = createCommand()
   .name(pkg.name)
@@ -28,6 +29,7 @@ const program = createCommand()
   .addArgument(othersArg)
   .addOption(configOption)
   .addOption(encodingOption)
+  .addOption(verboseOption)
   .option("-l, --list", "print a list of nodes", false)
   .option("-d, --dot [name]", "print the graph in DOT format", false)
   .option("-o, --output <output>", "output file name", false)
@@ -71,4 +73,20 @@ const program = createCommand()
     }
   });
 
-program.parse();
+const badge = (label: string, color: string) =>
+  `\x1b[${color}m\x1b[97m ${label} \x1b[0m`;
+
+try {
+  program.parse();
+} catch (e) {
+  const verbose = program.opts().verbose;
+  if (e instanceof SymbexError) {
+    process.stderr.write(`${badge(e.code, "41")} ${e.message}\n`);
+    if (verbose) console.error(e);
+  } else {
+    const msg = e instanceof Error ? e.message : String(e);
+    process.stderr.write(`${badge("ERROR", "41")} ${msg}\n`);
+    if (verbose) console.error(e);
+  }
+  process.exit();
+}
