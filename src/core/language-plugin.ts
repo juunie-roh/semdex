@@ -78,11 +78,13 @@ class LanguagePlugin {
   ): { edges: Edge[]; nodes: Node[] } {
     const captures = this._capture(node);
     const result = this._convert(captures, [filePath] as NodePath);
+    // add root file node once
     result.nodes.push({
       path: [filePath] as NodePath,
       kind: "module",
       type: "scope",
     });
+
     return result;
   }
 }

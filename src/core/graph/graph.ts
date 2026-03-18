@@ -35,13 +35,13 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   }
 
   /**
-   * Contains all the nodes added to the graph.
+   * @returns All the nodes added to the graph.
    */
   get nodes(): ReadonlyMap<NodeId, GraphNode<N>> {
     return this._nodes;
   }
   /**
-   * The adjacency list of the graph.
+   * @returns The adjacency list of the graph.
    */
   get edges(): ReadonlyMap<
     NodeId,
@@ -50,7 +50,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     return this._edges;
   }
   /**
-   * Language specific metadata for each edges.
+   * @returns Language specific metadata for each edges.
    */
   get edgeProps(): ReadonlyMap<
     NodeId,
@@ -61,6 +61,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
 
   /**
    * Adds a node to the graph.
+   * @returns `this` for chaining.
    */
   addNode(node: N): this {
     const id = this._registry.encode(node.path);
@@ -80,6 +81,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
 
   /**
    * Removes a node from the graph.
+   * @returns `this` for chaining.
    */
   removeNode(node: N): this {
     const id = this._registry.encode(node.path);
@@ -99,7 +101,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   }
 
   /**
-   * Gets the adjacent node ids set for the given node id.
+   * @returns The adjacent node ids set for the given node id.
    */
   adjacent(
     id: NodeId,
@@ -117,6 +119,7 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
 
   /**
    * Adds an edge to the graph.
+   * @returns `this` for chaining.
    */
   addEdge(edge: E): this {
     const { from, to, kind, props } = edge;
@@ -152,6 +155,9 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     return this;
   }
 
+  /**
+   * @returns `this` for chaining.
+   */
   removeEdge(from: NodeId, to: NodeId, kind: GraphEdge<E>["kind"]): this {
     this._edges.get(from)?.get(to)?.delete(kind);
     this._edgeProps.get(from)?.get(to)?.delete(kind);
@@ -159,17 +165,15 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
   }
 
   /**
-   * Returns true if there is an edge from the `source` node to `target` node.
+   * @returns True if there is an edge from the `source` node to `target` node.
    */
   hasEdge(from: NodeId, to: NodeId, kind: GraphEdge<E>["kind"]): boolean {
     return this._edges.get(from)?.get(to)?.has(kind) ?? false;
   }
 
   /**
-   * Returns the {@link NodeId | `NodeId`} of the direct parent node in the scope chain,
-   * or `undefined` if the node has no registered parent.
    * @param id - The `NodeId` of the node whose parent to look up.
-   * @returns The `NodeId` of the parent node, or `undefined` if `id` is a root node.
+   * @returns The {@link NodeId | `NodeId`} of the direct parent node in the scope chain, or `undefined` if the node has no registered parent.
    */
   parent(id: NodeId): NodeId | undefined {
     const path = this._registry.decode(id).slice(0, -1) as NodePath;
@@ -179,14 +183,23 @@ class Graph<N extends Node = Node, E extends Edge = Edge> {
     return this._registry.encode(path);
   }
 
+  /**
+   * @returns 0-based depth relative to root module.
+   */
   depth(id: NodeId): number {
     return this._registry.decode(id).length - 1;
   }
 
+  /**
+   * @returns Path segments matching {@link NodeId | id} registered in the graph.
+   */
   path(id: NodeId): NodePath {
     return this._registry.decode(id);
   }
 
+  /**
+   * @returns Serialized graph nodes and edges.
+   */
   serialize() {
     const nodes = Array.from(
       this._nodes.values().map((n) => ({
