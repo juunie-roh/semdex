@@ -1,12 +1,8 @@
 {
   "language": [
     {
-      "ext": ".ts",
-      "name": "@symbex/typescript"
-    },
-    {
-      "ext": ".tsx",
-      "name": "@symbex/tsx"
+      "ext": ".js",
+      "name": "@symbex/javascript"
     }
   ]
 }

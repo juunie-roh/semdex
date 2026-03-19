@@ -44,12 +44,9 @@ importers:
       '@eslint/js':
         specifier: ^10.0.1
         version: 10.0.1(eslint@10.0.3(jiti@2.6.1))
-      '@symbex/tsx':
+      '@symbex/javascript':
         specifier: workspace:*
-        version: link:packages/tsx
-      '@symbex/typescript':
-        specifier: workspace:*
-        version: link:packages/typescript
+        version: link:packages/javascript
       '@types/node':
         specifier: ^25.5.0
         version: 25.5.0
@@ -99,36 +96,14 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0(@types/node@25.5.0)(vite@7.3.1(@types/node@25.5.0)(jiti@2.6.1)(yaml@2.8.2))
 
-  packages/tsx:
-    dependencies:
-      '@symbex/typescript':
-        specifier: ^0.0.2
-        version: 0.0.2(symbex@)(tree-sitter-typescript@0.23.2(tree-sitter@0.25.0))
+  packages/javascript:
     devDependencies:
       symbex:
         specifier: workspace:*
         version: link:../..
-      tree-sitter:
+      tree-sitter-javascript:
         specifier: ^0.25.0
-        version: 0.25.0
-      tree-sitter-typescript:
-        specifier: ^0.23.2
-        version: 0.23.2(tree-sitter@0.25.0)
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(typescript@5.9.3)(yaml@2.8.2)
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-
-  packages/typescript:
-    devDependencies:
-      symbex:
-        specifier: workspace:*
-        version: link:../..
-      tree-sitter-typescript:
-        specifier: ^0.23.2
-        version: 0.23.2(tree-sitter@0.25.0)
+        version: 0.25.0(tree-sitter@0.25.0)
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(jiti@2.6.1)(postcss@8.5.8)(typescript@5.9.3)(yaml@2.8.2)
@@ -752,13 +727,6 @@ packages:
 
   '@standard-schema/spec@1.1.0':
     resolution: {integrity: sha512-l2aFy5jALhniG5HgqrD6jXLi/rUWrKvqN/qJx6yoJsgKhblVd+iqqU4RCXavm/jPityDo5TCvKMnpjKnOriy0w==}
-
-  '@symbex/typescript@0.0.2':
-    resolution: {integrity: sha512-CRHoiMq2+vK9gNsKOUNJqndG6AWyv6KQvb4lrMXePfRcLF6U5T4W6/W8QgQp5/iHJ0vEz9rnsIhR30Ag57SyNg==}
-    engines: {node: ^22.13.0 || >=24}
-    peerDependencies:
-      symbex: ^0.0.2
-      tree-sitter-typescript: ^0.23.2
 
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
@@ -2144,18 +2112,10 @@ packages:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
 
-  tree-sitter-javascript@0.23.1:
-    resolution: {integrity: sha512-/bnhbrTD9frUYHQTiYnPcxyHORIw157ERBa6dqzaKxvR/x3PC4Yzd+D1pZIMS6zNg2v3a8BZ0oK7jHqsQo9fWA==}
+  tree-sitter-javascript@0.25.0:
+    resolution: {integrity: sha512-1fCbmzAskZkxcZzN41sFZ2br2iqTYP3tKls1b/HKGNPQUVOpsUxpmGxdN/wMqAk3jYZnYBR1dd/y/0avMeU7dw==}
     peerDependencies:
-      tree-sitter: ^0.21.1
-    peerDependenciesMeta:
-      tree-sitter:
-        optional: true
-
-  tree-sitter-typescript@0.23.2:
-    resolution: {integrity: sha512-e04JUUKxTT53/x3Uq1zIL45DoYKVfHH4CZqwgZhPg5qYROl5nQjV+85ruFzFGZxu+QeFVbRTPDRnqL9UbU4VeA==}
-    peerDependencies:
-      tree-sitter: ^0.21.0
+      tree-sitter: ^0.25.0
     peerDependenciesMeta:
       tree-sitter:
         optional: true
@@ -2975,11 +2935,6 @@ snapshots:
   '@sindresorhus/base62@1.0.0': {}
 
   '@standard-schema/spec@1.1.0': {}
-
-  '@symbex/typescript@0.0.2(symbex@)(tree-sitter-typescript@0.23.2(tree-sitter@0.25.0))':
-    dependencies:
-      symbex: 'link:'
-      tree-sitter-typescript: 0.23.2(tree-sitter@0.25.0)
 
   '@types/chai@5.2.3':
     dependencies:
@@ -4383,18 +4338,10 @@ snapshots:
 
   tree-kill@1.2.2: {}
 
-  tree-sitter-javascript@0.23.1(tree-sitter@0.25.0):
+  tree-sitter-javascript@0.25.0(tree-sitter@0.25.0):
     dependencies:
       node-addon-api: 8.6.0
       node-gyp-build: 4.8.4
-    optionalDependencies:
-      tree-sitter: 0.25.0
-
-  tree-sitter-typescript@0.23.2(tree-sitter@0.25.0):
-    dependencies:
-      node-addon-api: 8.6.0
-      node-gyp-build: 4.8.4
-      tree-sitter-javascript: 0.23.1(tree-sitter@0.25.0)
     optionalDependencies:
       tree-sitter: 0.25.0
 

@@ -160,11 +160,6 @@ namespace LanguagePlugin {
     return (
       typeof language === "object" &&
       language !== null &&
-      "name" in language &&
-      language.name !== null &&
-      typeof language.name === "string" &&
-      "language" in language &&
-      language.language !== null &&
       "nodeTypeInfo" in language &&
       language.nodeTypeInfo !== null &&
       Array.isArray(language.nodeTypeInfo)
