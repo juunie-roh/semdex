@@ -60,6 +60,8 @@ export type QueryConfig = {
   };
 };
 
+export type BypassQueryKey = "export";
+
 export type NodeKind = keyof QueryConfig;
 
 export type Node = symbex.Node<NodeKind>;

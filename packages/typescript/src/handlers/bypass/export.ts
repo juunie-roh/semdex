@@ -1,0 +1,30 @@
+import type { CaptureConfigOptions } from "symbex";
+import type TSParser from "tree-sitter";
+
+import { bypass, query } from "@/query";
+import { QueryConfig } from "@/types";
+
+function bypassExport(
+  queryKey: keyof QueryConfig,
+): CaptureConfigOptions["bypass"] {
+  return (node) => {
+    const matches: TSParser.QueryMatch[] = [];
+
+    if (node.type === "program") {
+      const captured = bypass
+        .get("export")
+        .captures(node, { maxStartDepth: 1 })
+        .filter((c) => c.name === "node")
+        .map((c) => c.node);
+      if (captured.length > 0) {
+        for (const c of captured) {
+          matches.push(...query.match(queryKey, c, { maxStartDepth: 0 }));
+        }
+      }
+    }
+
+    return matches;
+  };
+}
+
+export default bypassExport;
