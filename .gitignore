@@ -12,6 +12,10 @@ coverage
 # typescript
 *.tsbuildinfo
 
+# mock files
+packages/javascript/__mocks__/lodash.js
+packages/javascript/__mocks__/three.module.js
+
 # misc
 CLAUDE.md
 .claude
