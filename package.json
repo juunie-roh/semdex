@@ -55,7 +55,7 @@
     "check-types:all": "tsc -p ./tsconfig.json --noEmit && pnpm -r check-types",
     "dev": "tsup --watch",
     "dev:config": "node dist/bin/symbex.js --config __mocks__/symbex.config.json",
-    "lint": "eslint .",
+    "lint": "eslint . --cache",
     "prepare": "husky",
     "test": "vitest run",
     "test:watch": "vitest watch --coverage",
