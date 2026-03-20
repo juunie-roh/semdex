@@ -1,67 +1,33 @@
-import { createChildPath, createConvertResult, getRange } from "symbex/utils";
+import type TSParser from "tree-sitter";
 
-import type { ConvertHandler, Edge, Node } from "@/types";
+type Pattern = (
+  node: TSParser.SyntaxNode,
+  has_default?: boolean,
+) => { name: string; node: TSParser.SyntaxNode; has_default?: boolean }[];
 
-const patternHandler: ConvertHandler<"pattern"> = (
-  captures,
-  parent,
-  { capture, convert },
-) => {
-  const result = createConvertResult<Node, Edge>();
+const patterns: Record<string, Pattern> = {
+  identifier: (node, has_default) => [{ name: node.text, node, has_default }],
+  shorthand_property_identifier_pattern: (node, has_default) => [
+    { name: node.text, node, has_default },
+  ],
 
-  for (const c of captures) {
-    switch (c.node.type) {
-      case "array_pattern":
-        if (c.pattern)
-          result.push(
-            convert(capture(c.pattern, "pattern"), parent, "pattern"),
-          );
-        break;
-      case "identifier":
-        const path = createChildPath(parent, c.node.text);
-        result.edges.push({
-          from: parent,
-          to: path,
-          kind: "defines",
-        });
-        result.nodes.push({
-          path,
-          type: "binding",
-          kind: "variable",
-          at: getRange(c.node),
-          props: {
-            default: c.default?.text,
-            alias_of: c.key?.text,
-          },
-        });
-        break;
-      case "object_pattern":
-        if (c.name) {
-          const path = createChildPath(parent, c.node.text);
-          result.edges.push({
-            from: parent,
-            to: path,
-            kind: "defines",
-          });
-          result.nodes.push({
-            path,
-            type: "binding",
-            kind: "variable",
-            at: getRange(c.node),
-          });
-        }
-        if (c.pattern) {
-          result.push(
-            convert(capture(c.pattern, "pattern"), parent, "pattern"),
-          );
-        }
-        break;
-      case "rest_pattern":
-        result.push(convert(capture(c.pattern!, "pattern"), parent, "pattern"));
-        break;
-    }
-  }
+  rest_pattern: (node, has_default) =>
+    flatPattern(node.firstNamedChild!, has_default),
+  assignment_pattern: (node) =>
+    flatPattern(node.childForFieldName("left")!, true),
+  object_assignment_pattern: (node) =>
+    flatPattern(node.childForFieldName("left")!, true),
+  pair_pattern: (node, has_default) =>
+    flatPattern(node.childForFieldName("value")!, has_default),
 
-  return result;
+  array_pattern: (node, has_default) =>
+    node.namedChildren.flatMap((c) => flatPattern(c, has_default)),
+  object_pattern: (node, has_default) =>
+    node.namedChildren.flatMap((c) => flatPattern(c, has_default)),
 };
-export default patternHandler;
+
+const flatPattern: Pattern = (node, has_default = false) => {
+  return patterns[node.type]?.(node, has_default) ?? [];
+};
+
+export default flatPattern;

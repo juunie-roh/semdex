@@ -29,19 +29,11 @@ export type QueryConfig = {
     required: "node" | "name" | "body" | "params";
     optional: "is_static" | "is_async" | "decorator";
   };
-  parameter: {
-    required: never;
-    optional: "pattern" | "name" | "default" | "key";
-  };
-  pattern: {
-    required: "node";
-    optional: "pattern" | "name" | "default" | "key";
-  };
 };
 
 export type BypassQueryKey = "export";
 
-export type NodeKind = keyof QueryConfig;
+export type NodeKind = keyof QueryConfig | "parameter";
 
 export type Node = symbex.Node<NodeKind>;
 

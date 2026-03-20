@@ -2,6 +2,8 @@ import { createChildPath, createConvertResult, getRange } from "symbex/utils";
 
 import type { ConvertHandler, Edge, Node } from "@/types";
 
+import flatPattern from "../utility/pattern";
+
 const functionHandler: ConvertHandler<"function"> = (
   captures,
   parent,
@@ -27,11 +29,41 @@ const functionHandler: ConvertHandler<"function"> = (
       props: { is_async: !!is_async },
     });
 
-    result.push(convert(capture(params, "parameter"), path, "parameter"));
+    if (params.type === "identifier") {
+      const paramPath = createChildPath(path, params.text);
+      result.edges.push({
+        from: path,
+        to: paramPath,
+        kind: "defines",
+      });
 
-    if (body) {
-      result.push(convert(capture(body), path));
+      result.nodes.push({
+        path: paramPath,
+        type: "binding",
+        kind: "parameter",
+        at: getRange(params),
+      });
+    } else {
+      c.params.namedChildren.forEach((child) => {
+        flatPattern(child).forEach(({ name, node, has_default }) => {
+          const parameterPath = createChildPath(path, name);
+          result.edges.push({
+            from: path,
+            to: parameterPath,
+            kind: "defines",
+          });
+          result.nodes.push({
+            path: parameterPath,
+            type: "binding",
+            kind: "parameter",
+            at: getRange(node),
+            props: { has_default },
+          });
+        });
+      });
     }
+
+    result.push(convert(capture(body), path));
   }
 
   return result;

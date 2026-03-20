@@ -2,11 +2,9 @@ import { createChildPath, createConvertResult, getRange } from "symbex/utils";
 
 import type { ConvertHandler, Edge, Node } from "@/types";
 
-const variableHandler: ConvertHandler<"variable"> = (
-  captures,
-  parent,
-  { capture, convert },
-) => {
+import flatPattern from "../utility/pattern";
+
+const variableHandler: ConvertHandler<"variable"> = (captures, parent) => {
   const result = createConvertResult<Node, Edge>();
   const excludes = new Set([
     "arrow_function",
@@ -44,7 +42,21 @@ const variableHandler: ConvertHandler<"variable"> = (
         props: { kind: kind.text },
       });
     } else if (pattern) {
-      result.push(convert(capture(pattern, "pattern"), parent, "pattern"));
+      for (const { name, has_default } of flatPattern(pattern)) {
+        const path = createChildPath(parent, name);
+        result.edges.push({
+          from: parent,
+          to: path,
+          kind: "defines",
+        });
+        result.nodes.push({
+          path,
+          type: "binding",
+          kind: "variable",
+          at: getRange(node),
+          props: { kind: kind.text, has_default },
+        });
+      }
     }
   }
 

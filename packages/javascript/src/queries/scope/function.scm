@@ -15,15 +15,16 @@
 ) @node
 
 ;; arrow function / function expression
-;; const/let @name = @is_async @params: @return_type => @body
-;; const/let @name = @is_async function @params: @return_type @body
+;; const/let @name = @is_async @params => @body
+;; const/let @name = @is_async function @params @body
 (lexical_declaration
   (variable_declarator
     name: (identifier) @name
     value: [
       (arrow_function
         "async"? @is_async
-        parameters: [(formal_parameters) (identifier)] @params
+        parameter: (identifier)? @params
+        parameters: (formal_parameters)? @params
         body: (_) @body)
       (function_expression
         "async"? @is_async
@@ -40,7 +41,8 @@
     value: [
       (arrow_function
         "async"? @is_async
-        parameters: [(formal_parameters) (identifier)] @params
+        parameter: (identifier)? @params
+        parameters: (formal_parameters)? @params
         body: (_) @body)
       (function_expression
         "async"? @is_async
